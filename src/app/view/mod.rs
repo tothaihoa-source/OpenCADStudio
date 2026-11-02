@@ -2493,6 +2493,23 @@ bg={bg_ms:.1}ms n={view_count}"
             } else {
                 None
             };
+            // CadMini Studio: classic Draw (left) and Modify (right) toolbars.
+            // A context toolbar of the right edge takes Modify's place.
+            let classic = self.ui_style == crate::app::workspace::UiStyle::Classic
+                && !tab.is_start
+                && !self.clean_screen;
+            if classic {
+                viewport_stack = viewport_stack
+                    .push(crate::ui::classic_toolbar::left_overlay(self.workspace.is_3d()));
+                if selection_tools.is_none()
+                    && !is_paper
+                    && tab.refedit_session.is_none()
+                    && tab.active_block_edit.is_none()
+                {
+                    viewport_stack =
+                        viewport_stack.push(crate::ui::classic_toolbar::right_overlay(self.workspace.is_3d()));
+                }
+            }
             if let Some(tb) = selection_tools {
                 viewport_stack = viewport_stack.push(tb);
             } else if is_paper && !tab.is_start {
@@ -2875,6 +2892,12 @@ bg={bg_ms:.1}ms n={view_count}"
                         self.block_visibility_context(),
                     ),
                 );
+                // CadMini Studio: the classic toolbar row under the menus.
+                if self.ui_style == crate::app::workspace::UiStyle::Classic
+                    && !self.tabs[self.active_tab].is_start
+                {
+                    col = col.push(crate::ui::classic_toolbar::top_bar(self.workspace.is_3d()));
+                }
             }
             // Split the `chrome` bucket so live `view-detail` traces show
             // ribbon vs status-bar construction separately (both gated on

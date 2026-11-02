@@ -21,10 +21,16 @@ Chuyển không gian: **Tools › Workspaces › 2D Drafting / 3D Modeling**, ho
 `WS2D`, `WS3D`, `WSCURRENT 2D|3D` (`WSCURRENT` không tham số: đổi qua lại).
 Lựa chọn được nhớ cho lần mở sau.
 
-### 2. Menu kiểu truyền thống
+### 2. Hai kiểu giao diện: Cổ điển (menu + toolbar) và Ribbon
 
-Mặc định hiện thanh menu kéo xuống (MENUBAR 1) và đóng ribbon (RIBBONCLOSE) để dành diện
-tích cho bản vẽ. Gõ `RIBBON` để mở lại ribbon, `RIBBONCLOSE` để đóng.
+Chọn ở **Tools › Workspaces › Classic Menus and Toolbars / Ribbon (Open CAD Studio)**, hoặc gõ
+`UISTYLE CLASSIC`, `UISTYLE RIBBON` (`UISTYLE` không tham số: đổi qua lại). Lựa chọn được nhớ.
+
+- **Cổ điển** (mặc định, như CadMini / AutoCAD 2007): thanh menu kéo xuống, ribbon đóng; một hàng
+  toolbar phía trên (Pan/Zoom, Layer/Properties/Match, kiểu chữ/kích thước, kích thước, đo, độ mờ,
+  GIS khi ở 2D); toolbar **Draw** dọc mép trái bản vẽ (thêm lệnh dựng khối khi ở 3D) và **Modify**
+  dọc mép phải. Di chuột lên nút để xem tên và lệnh.
+- **Ribbon**: ribbon như bản gốc Open CAD Studio; thanh menu vẫn giữ phía trên để luôn đổi lại được.
 
 ### 3. GIS (trong không gian 2D)
 

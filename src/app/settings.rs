@@ -783,6 +783,8 @@ pub struct UserSettings {
     pub ribbon_closed: bool,
     /// CadMini Studio: the active workspace (WSCURRENT).
     pub workspace: crate::app::workspace::Workspace,
+    /// CadMini Studio: ribbon or classic menus and toolbars (UISTYLE).
+    pub ui_style: crate::app::workspace::UiStyle,
     /// CadMini Studio: HATCHFADE / LINEFADE, percent.
     pub hatch_fade: u32,
     pub line_fade: u32,
@@ -1335,6 +1337,7 @@ impl Default for UserSettings {
             show_menu_bar: true,
             ribbon_closed: true,
             workspace: crate::app::workspace::Workspace::default(),
+            ui_style: crate::app::workspace::UiStyle::default(),
             hatch_fade: 0,
             line_fade: 0,
             options_tab: crate::ui::window::options::OptionsTab::General,

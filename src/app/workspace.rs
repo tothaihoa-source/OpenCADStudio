@@ -98,3 +98,31 @@ mod tests {
         assert!(!is_3d_command("LINE"));
     }
 }
+
+/// CadMini Studio: how the commands are laid out.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum UiStyle {
+    /// Pull-down menus and classic toolbars (Draw on the left, Modify on the
+    /// right, Standard / Dimension on top), as CadMini and AutoCAD 2007.
+    #[default]
+    Classic,
+    /// The Open CAD Studio ribbon (menus kept above it).
+    Ribbon,
+}
+
+impl UiStyle {
+    pub fn parse(s: &str) -> Option<Self> {
+        match s.trim().to_uppercase().as_str() {
+            "CLASSIC" | "C" | "TOOLBAR" | "TOOLBARS" | "MENU" => Some(UiStyle::Classic),
+            "RIBBON" | "R" => Some(UiStyle::Ribbon),
+            _ => None,
+        }
+    }
+
+    pub fn title(self) -> &'static str {
+        match self {
+            UiStyle::Classic => "Classic menus and toolbars",
+            UiStyle::Ribbon => "Ribbon",
+        }
+    }
+}

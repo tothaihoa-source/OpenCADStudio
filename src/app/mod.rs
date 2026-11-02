@@ -888,6 +888,8 @@ pub(super) struct OpenCADStudio {
     ribbon_closed: bool,
     /// CadMini Studio: the 2D drafting + GIS or the 3D modeling workspace.
     workspace: workspace::Workspace,
+    /// CadMini Studio: ribbon or classic menus and toolbars (UISTYLE).
+    ui_style: workspace::UiStyle,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -5685,6 +5687,7 @@ impl OpenCADStudio {
             show_menu_bar: true,
             ribbon_closed: true,
             workspace: workspace::Workspace::default(),
+            ui_style: workspace::UiStyle::default(),
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,
@@ -6286,6 +6289,7 @@ impl OpenCADStudio {
         // the inherited suite exercises the upstream layout (3D tools and the
         // ribbon on show). The workspace tests switch explicitly.
         app.workspace = workspace::Workspace::Modeling3D;
+        app.ui_style = workspace::UiStyle::Ribbon;
         app.ribbon_closed = false;
         app.show_menu_bar = false;
         app.apply_workspace_chrome();

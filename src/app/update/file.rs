@@ -811,6 +811,7 @@ impl OpenCADStudio {
             show_menu_bar: self.show_menu_bar,
             ribbon_closed: self.ribbon_closed,
             workspace: self.workspace,
+            ui_style: self.ui_style,
             hatch_fade: crate::scene::display_fade::hatch_fade(),
             line_fade: crate::scene::display_fade::line_fade(),
             options_tab: self.options_tab,
@@ -986,6 +987,7 @@ impl OpenCADStudio {
         self.show_menu_bar = s.show_menu_bar;
         self.ribbon_closed = s.ribbon_closed;
         self.workspace = s.workspace;
+        self.ui_style = s.ui_style;
         crate::scene::display_fade::set_hatch_fade(s.hatch_fade);
         crate::scene::display_fade::set_line_fade(s.line_fade);
         self.apply_workspace_chrome();

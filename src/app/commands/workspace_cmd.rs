@@ -4,7 +4,7 @@
 //! `WSCURRENT` alone switches to the other one. In the 2D workspace the
 //! 3D-only commands are refused with a hint to switch.
 
-use crate::app::workspace::{self, Workspace};
+use crate::app::workspace::{self, UiStyle, Workspace};
 use crate::app::{Message, OpenCADStudio};
 use iced::Task;
 
@@ -40,6 +40,18 @@ impl OpenCADStudio {
         }
     }
 
+    /// Classic: pull-down menus and toolbars, no ribbon. Ribbon: the ribbon
+    /// with the menus kept above it, so this switch stays one click away.
+    pub(in crate::app) fn set_ui_style(&mut self, style: UiStyle) {
+        self.ui_style = style;
+        self.show_menu_bar = true;
+        self.ribbon_closed = style == UiStyle::Classic;
+        self.persist_settings_if_changed();
+        self.command_line.push_info(
+            crate::tf!("Interface: {name}", name = crate::t!(style.title())).as_ref(),
+        );
+    }
+
     pub(super) fn dispatch_workspace(&mut self, cmd: &str, _i: usize) -> Option<Task<Message>> {
         let trimmed = cmd.trim().trim_start_matches(['_', '.']);
         let mut words = trimmed.splitn(2, char::is_whitespace);
@@ -63,6 +75,23 @@ impl OpenCADStudio {
                 Some(self.set_workspace(target))
             }
             "WS2D" => Some(self.set_workspace(Workspace::Drafting2D)),
+            "UISTYLE" => {
+                let style = if arg.is_empty() {
+                    match self.ui_style {
+                        UiStyle::Classic => UiStyle::Ribbon,
+                        UiStyle::Ribbon => UiStyle::Classic,
+                    }
+                } else if let Some(style) = UiStyle::parse(arg) {
+                    style
+                } else {
+                    self.command_line.push_error(
+                        crate::t!("UISTYLE: enter CLASSIC or RIBBON.").as_ref(),
+                    );
+                    return Some(Task::none());
+                };
+                self.set_ui_style(style);
+                Some(Task::none())
+            }
             "WS3D" => Some(self.set_workspace(Workspace::Modeling3D)),
             _ if !self.workspace.is_3d() && workspace::is_3d_command(&verb) => {
                 self.command_line.push_error(
@@ -80,7 +109,7 @@ impl OpenCADStudio {
 }
 
 inventory::submit!(crate::command::CommandRegistration {
-    names: &["WSCURRENT", "WORKSPACE", "WS2D", "WS3D"],
+    names: &["WSCURRENT", "WORKSPACE", "WS2D", "WS3D", "UISTYLE"],
 });
 
 #[cfg(test)]
