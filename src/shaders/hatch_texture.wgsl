@@ -23,6 +23,11 @@ struct Uniforms {
 }
 @group(0) @binding(0) var<uniform> u: Uniforms;
 
+// CadMini Studio: hatch fade packed in `flat_shade` bits 1..7, in percent.
+fn hatch_keep() -> f32 {
+    return 1.0 - min(f32((u32(u.flat_shade) >> 1u) & 127u), 95.0) / 100.0;
+}
+
 const MODEL_LINEWEIGHT_BOOST: f32 = 2.0;
 const MODEL_LINEWEIGHT_MAX_PX: f32 = 10.0;
 
@@ -202,7 +207,7 @@ fn check_family(
 
 // Entity transparency shows only while transparency display is on.
 fn shown(color: vec4<f32>) -> vec4<f32> {
-    return vec4<f32>(color.rgb, select(1.0, color.a, u.transparency_enable > 0.5));
+    return vec4<f32>(color.rgb, select(1.0, color.a, u.transparency_enable > 0.5) * hatch_keep());
 }
 
 @fragment fn fs_main(v: VOut) -> @location(0) vec4<f32> {

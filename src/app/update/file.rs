@@ -810,6 +810,9 @@ impl OpenCADStudio {
             hatch_gap_tolerance: self.hatch_gap_tolerance,
             show_menu_bar: self.show_menu_bar,
             ribbon_closed: self.ribbon_closed,
+            workspace: self.workspace,
+            hatch_fade: crate::scene::display_fade::hatch_fade(),
+            line_fade: crate::scene::display_fade::line_fade(),
             options_tab: self.options_tab,
             show_viewcube: self.show_viewcube,
             show_ucs_icon: self.show_ucs_icon,
@@ -982,6 +985,10 @@ impl OpenCADStudio {
         }
         self.show_menu_bar = s.show_menu_bar;
         self.ribbon_closed = s.ribbon_closed;
+        self.workspace = s.workspace;
+        crate::scene::display_fade::set_hatch_fade(s.hatch_fade);
+        crate::scene::display_fade::set_line_fade(s.line_fade);
+        self.apply_workspace_chrome();
         self.options_tab = s.options_tab;
         self.spacemouse_preferences = s.spacemouse;
         // These four drive real features with commands and status-bar pills,

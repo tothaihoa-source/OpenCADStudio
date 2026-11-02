@@ -5002,7 +5002,7 @@ impl Scene {
         // Crop the rotation-only RTE view-projection to the visible sub-rect.
         uniforms.view_rot = crop_view_proj(uniforms.view_rot, uo, vo, us, vs);
         uniforms.viewport_size = [visible_w, visible_h];
-        uniforms.flat_shade = if flags.flat_shade { 1.0 } else { 0.0 };
+        uniforms.flat_shade = crate::scene::display_fade::pack(flags.flat_shade);
         uniforms.transparency_enable = if self.transparency_display { 1.0 } else { 0.0 };
         uniforms.highlight_widen = self.selection_widen;
         uniforms.edge_rgb = crate::scene::pipeline::uniforms::edge_rgb_bits(self.edge_color);

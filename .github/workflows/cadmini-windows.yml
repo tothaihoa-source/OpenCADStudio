@@ -1,0 +1,76 @@
+name: CadMini Studio Windows
+
+# Builds the CadMini Studio fork for Windows on every push to its branch and
+# publishes the zip as a GitHub release (cms-<version>-<run>).
+
+on:
+  push:
+    branches: [cadmini-studio]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  RUST_MIN_STACK: "67108864"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Convert SVG icon to ICO
+        shell: pwsh
+        run: |
+          magick assets/logo.svg `
+            -define icon:auto-resize=16,24,32,48,64,128,256 `
+            packaging/windows/AppIcon.ico
+
+      - name: Test GIS and workspace code
+        shell: bash
+        run: cargo test --locked --release --lib -- gis:: workspace:: menu_bar
+
+      - name: Build
+        shell: bash
+        run: cargo build --locked --release
+
+      - name: Package
+        id: pkg
+        shell: bash
+        run: |
+          version=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
+          tag="cms-${version}-${GITHUB_RUN_NUMBER}"
+          dir="CadMiniStudio-${version}-windows-x64"
+          mkdir "$dir"
+          cp target/release/OpenCADStudio.exe "$dir/CadMiniStudio.exe"
+          cp LICENSE "$dir/LICENSE.txt"
+          cp docs/cadmini-studio.md "$dir/README-CadMini-Studio.md"
+          7z a -tzip "$dir.zip" "$dir" > /dev/null
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "zip=$dir.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CadMiniStudio-windows-x64
+          path: ${{ steps.pkg.outputs.zip }}
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.pkg.outputs.tag }}" "${{ steps.pkg.outputs.zip }}" \
+            --target "$GITHUB_SHA" \
+            --title "CadMini Studio ${{ steps.pkg.outputs.tag }}" \
+            --notes "CadMini Studio, based on Open CAD Studio (GPL-3.0). Separate 2D (drafting + GIS) and 3D workspaces, classic menus. Unsigned build: Windows SmartScreen may warn on first start."

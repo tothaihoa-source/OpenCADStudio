@@ -323,7 +323,7 @@ fn photometric_web(index: u32, cosine: f32) -> f32 {
 fn fs_main(in: VertexOut) -> @location(0) vec4<f32> {
     let two_sided = maps.render_modes.x != 0u;
     var n: vec3<f32>;
-    if (u.flat_shade > 0.5) {
+    if ((u32(u.flat_shade) & 1u) == 1u) {
         // Per-triangle face normal: derivatives of the interpolated
         // world position are constant across the primitive, so every
         // fragment in the same triangle sees the same normal.

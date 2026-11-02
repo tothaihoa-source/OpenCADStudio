@@ -187,6 +187,23 @@ const MENUS: &[(&str, &[Entry])] = &[
                     Cmd("Visual Styles Manager...", "VISUALSTYLES", ""),
                 ],
             ),
+            // CadMini Studio: faint hatches / lines, transparency on screen.
+            Sub(
+                "Fade",
+                &[
+                    Cmd("Transparency Display", "TPY", ""),
+                    Sep,
+                    Cmd("Hatch Fade Off", "HATCHFADE 0", ""),
+                    Cmd("Hatch Fade 25%", "HATCHFADE 25", ""),
+                    Cmd("Hatch Fade 50%", "HATCHFADE 50", ""),
+                    Cmd("Hatch Fade 75%", "HATCHFADE 75", ""),
+                    Sep,
+                    Cmd("Line Fade Off", "LINEFADE 0", ""),
+                    Cmd("Line Fade 25%", "LINEFADE 25", ""),
+                    Cmd("Line Fade 50%", "LINEFADE 50", ""),
+                    Cmd("Line Fade 75%", "LINEFADE 75", ""),
+                ],
+            ),
             Sep,
             Sub(
                 "Display",
@@ -528,6 +545,7 @@ const MENUS: &[(&str, &[Entry])] = &[
                 "Object",
                 &[
                     Cmd("Hatch...", "HATCHEDIT", ""),
+                    Cmd("Hatch Boundary to Polyline", "HATCHB", ""),
                     Cmd("Polyline", "PEDIT", ""),
                     Cmd("Spline", "SPLINEDIT", ""),
                     Cmd("Multiline...", "MLEDIT", ""),
@@ -579,6 +597,70 @@ const MENUS: &[(&str, &[Entry])] = &[
             Sep,
             Cmd("Change Space", "CHSPACE", ""),
             Cmd("Explode", "EXPLODE", ""),
+        ],
+    ),
+    // CadMini Studio: 3D modeling tools, shown in the 3D workspace only.
+    (
+        "Modeling",
+        &[
+            Cmd("Box", "BOX", ""),
+            Cmd("Cylinder", "CYLINDER", ""),
+            Cmd("Cone", "CONE", ""),
+            Cmd("Sphere", "SPHERE", ""),
+            Cmd("Pyramid", "PYRAMID", ""),
+            Cmd("Wedge", "WEDGE", ""),
+            Cmd("Torus", "TORUS", ""),
+            Cmd("Polysolid", "POLYSOLID", ""),
+            Cmd("Helix", "HELIX", ""),
+            Sep,
+            Cmd("Extrude", "EXTRUDE", ""),
+            Cmd("Revolve", "REVOLVE", ""),
+            Cmd("Sweep", "SWEEP", ""),
+            Cmd("Loft", "LOFT", ""),
+            Cmd("Presspull", "PRESSPULL", ""),
+            Cmd("Thicken", "THICKEN", ""),
+            Sep,
+            Cmd("Union", "UNION", ""),
+            Cmd("Subtract", "SUBTRACT", ""),
+            Cmd("Intersect", "INTERSECT", ""),
+            Cmd("Interference Checking", "INTERFERE", ""),
+            Sep,
+            Sub(
+                "3D Operations",
+                &[
+                    Cmd("3D Move", "3DMOVE", ""),
+                    Cmd("3D Rotate", "3DROTATE", ""),
+                    Cmd("3D Align", "3DALIGN", ""),
+                    Cmd("3D Mirror", "MIRROR3D", ""),
+                    Cmd("3D Array", "3DARRAY", ""),
+                ],
+            ),
+            Sub(
+                "Solid Editing",
+                &[
+                    Cmd("Fillet Edge", "FILLETEDGE", ""),
+                    Cmd("Chamfer Edge", "CHAMFEREDGE", ""),
+                    Cmd("Shell", "SHELL", ""),
+                    Cmd("Solid Edit", "SOLIDEDIT", ""),
+                ],
+            ),
+            Cmd("Slice", "SLICE", ""),
+            Cmd("Section Plane", "SECTIONPLANE", ""),
+            Cmd("Flatshot", "FLATSHOT", ""),
+            Sep,
+            Cmd("Orbit", "3DORBIT", ""),
+        ],
+    ),
+    // CadMini Studio: GIS tools, shown in the 2D workspace only.
+    (
+        "GIS",
+        &[
+            Cmd("Coordinate System...", "GISCRS", ""),
+            Cmd("Point Coordinates (Lat/Long)", "GISLL", ""),
+            Cmd("Go to Lat/Long", "GISGOTO", ""),
+            Sep,
+            Cmd("Import GIS Data...", "GISIMPORT", ""),
+            Cmd("Export GIS Data...", "GISEXPORT", ""),
         ],
     ),
     (
@@ -683,15 +765,19 @@ pub struct MenuContext<'a> {
     pub aliases: &'a rustc_hash::FxHashMap<String, String>,
     /// The Start tab is on show: only File, Window and Help.
     pub is_start: bool,
+    /// CadMini Studio: the workspace, which picks the menus on show.
+    pub workspace: crate::app::workspace::Workspace,
 }
 
 /// The menu bar, one pull-down per menu.
 pub fn view<'a>(context: MenuContext<'_>) -> Element<'a, Message> {
-    let menus = menu_rows(context.aliases);
+    let menus = menu_rows(context.aliases, context.workspace);
+    let hidden_menus = context.workspace.hidden_menus();
     let roots = MENUS
         .iter()
         .zip(menus.iter())
         .filter(|((title, _), _)| !context.is_start || START_MENUS.contains(title))
+        .filter(|((title, _), _)| !hidden_menus.contains(title))
         .map(|(&(title, _), rows)| {
             let mut extra = Vec::new();
             if title == "Window" && !context.drawings.is_empty() {
@@ -753,11 +839,14 @@ pub fn view<'a>(context: MenuContext<'_>) -> Element<'a, Message> {
 /// The rows of every menu, in `MENUS` order: built again only when the
 /// language or the alias → command table changes, since the bar is built
 /// every frame.
-fn menu_rows(aliases: &rustc_hash::FxHashMap<String, String>) -> std::rc::Rc<Vec<Vec<Row>>> {
+fn menu_rows(
+    aliases: &rustc_hash::FxHashMap<String, String>,
+    workspace: crate::app::workspace::Workspace,
+) -> std::rc::Rc<Vec<Vec<Row>>> {
     use std::hash::{Hash, Hasher};
     type Menus = std::rc::Rc<Vec<Vec<Row>>>;
     thread_local! {
-        static CACHE: std::cell::RefCell<Option<((u64, u64), Menus)>> =
+        static CACHE: std::cell::RefCell<Option<((u64, u64, bool), Menus)>> =
             const { std::cell::RefCell::new(None) };
     }
     // A fingerprint of the table, the same whatever order it is read in.
@@ -766,7 +855,7 @@ fn menu_rows(aliases: &rustc_hash::FxHashMap<String, String>) -> std::rc::Rc<Vec
         pair.hash(&mut hasher);
         acc ^ hasher.finish()
     });
-    let key = (crate::i18n::language_generation(), fingerprint);
+    let key = (crate::i18n::language_generation(), fingerprint, workspace.is_3d());
     CACHE.with(|cache| {
         let mut cache = cache.borrow_mut();
         if let Some((seen, menus)) = cache.as_ref() {
@@ -778,7 +867,7 @@ fn menu_rows(aliases: &rustc_hash::FxHashMap<String, String>) -> std::rc::Rc<Vec
         let menus: Menus = std::rc::Rc::new(
             MENUS
                 .iter()
-                .map(|&(_, entries)| rows(entries, &by_command))
+                .map(|&(_, entries)| rows(entries, &by_command, workspace.hidden_submenus()))
                 .collect(),
         );
         *cache = Some((key, menus.clone()));
@@ -941,9 +1030,11 @@ fn menu<'a>(rows: &[&Row], offset: f32) -> Menu<'a, Message, Theme, Renderer> {
 fn rows(
     entries: &'static [Entry],
     aliases: &rustc_hash::FxHashMap<String, Vec<String>>,
+    hidden_subs: &[&str],
 ) -> Vec<Row> {
     entries
         .iter()
+        .filter(|entry_def| !matches!(entry_def, Sub(label, _) if hidden_subs.contains(label)))
         .map(|entry_def| match *entry_def {
             Cmd(label, command, shortcut) => {
                 // A command's aliases follow its shortcut; not those of a
@@ -967,7 +1058,9 @@ fn rows(
                 }
             }
             Sep => Row::Sep,
-            Sub(label, entries) => Row::Sub(crate::t!(label).into_owned(), rows(entries, aliases)),
+            Sub(label, entries) => {
+                Row::Sub(crate::t!(label).into_owned(), rows(entries, aliases, hidden_subs))
+            }
         })
         .collect()
 }
@@ -1276,6 +1369,8 @@ mod tests {
                 "Draw",
                 "Dimension",
                 "Modify",
+                "Modeling",
+                "GIS",
                 "Parametric",
                 "Window",
                 "Help"

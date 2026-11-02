@@ -22,6 +22,13 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> u: Uniforms;
 
+// CadMini Studio: `flat_shade` carries the display fades as well —
+// bit 0 the mesh flat-shade flag, bits 1..7 the hatch fade and bits 8.. the
+// line fade, in percent (see Uniforms::pack_display_fades).
+fn line_keep() -> f32 {
+    return 1.0 - min(f32(u32(u.flat_shade) >> 8u), 95.0) / 100.0;
+}
+
 // ── Bind group 1: the shared glyph atlas ─────────────────────────────────────
 @group(1) @binding(0) var atlas_tex: texture_2d<f32>;
 @group(1) @binding(1) var atlas_samp: sampler;
@@ -105,5 +112,5 @@ fn fs_main(in: VertOut) -> @location(0) vec4<f32> {
     if alpha <= 0.0 {
         discard;
     }
-    return vec4<f32>(in.color.rgb, select(1.0, in.color.a, u.transparency_enable > 0.5) * alpha);
+    return vec4<f32>(in.color.rgb, (select(1.0, in.color.a, u.transparency_enable > 0.5) * line_keep()) * alpha);
 }

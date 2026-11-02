@@ -4289,8 +4289,16 @@ impl OpenCADStudio {
         } else if self.nav_zoom_latched {
             NavAction::Zoom
         } else {
-            self.nav_style_action(self.nav_held, true)
-                .unwrap_or(NavAction::Pan)
+            let action = self
+                .nav_style_action(self.nav_held, true)
+                .unwrap_or(NavAction::Pan);
+            // CadMini Studio: the 2D workspace keeps the view looking straight
+            // down, so the orbit and roll drags pan instead.
+            if !self.workspace.is_3d() && matches!(action, NavAction::Orbit | NavAction::Roll) {
+                NavAction::Pan
+            } else {
+                action
+            }
         }
     }
 

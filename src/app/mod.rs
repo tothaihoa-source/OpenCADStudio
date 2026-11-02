@@ -1,5 +1,6 @@
 pub(crate) mod alias;
 mod automation;
+pub mod workspace;
 pub(crate) mod control;
 pub(crate) fn automation_action_names() -> &'static [&'static str] {
     control::action_names()
@@ -885,6 +886,8 @@ pub(super) struct OpenCADStudio {
     show_menu_bar: bool,
     /// RIBBONCLOSE hid the ribbon; RIBBON brings it back.
     ribbon_closed: bool,
+    /// CadMini Studio: the 2D drafting + GIS or the 3D modeling workspace.
+    workspace: workspace::Workspace,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -5679,8 +5682,9 @@ impl OpenCADStudio {
             pick_box: 3,
             hatch_associative: true,
             hatch_gap_tolerance: 0.0,
-            show_menu_bar: false,
-            ribbon_closed: false,
+            show_menu_bar: true,
+            ribbon_closed: true,
+            workspace: workspace::Workspace::default(),
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,
@@ -6278,6 +6282,13 @@ impl OpenCADStudio {
         // where it expected the default, and the number of persisted settings
         // only grows.
         app.apply_config(crate::app::config::AppConfig::default());
+        // CadMini Studio starts in the 2D workspace with the ribbon closed;
+        // the inherited suite exercises the upstream layout (3D tools and the
+        // ribbon on show). The workspace tests switch explicitly.
+        app.workspace = workspace::Workspace::Modeling3D;
+        app.ribbon_closed = false;
+        app.show_menu_bar = false;
+        app.apply_workspace_chrome();
         app.last_saved_config = Some(app.current_config());
         app
     }
@@ -6600,13 +6611,13 @@ pub fn run() -> iced::Result {
             let dot = if tab.dirty { "● " } else { "" };
             let name = tab.tab_display_name();
             format!(
-                "{}Open CAD Studio {} - {}",
+                "{}CadMini Studio {} - {}",
                 dot,
                 env!("OCS_APP_VERSION"),
                 name
             )
         } else {
-            concat!("Open CAD Studio ", env!("OCS_APP_VERSION")).to_string()
+            concat!("CadMini Studio ", env!("OCS_APP_VERSION")).to_string()
         }
     })
     .theme(|state: &OpenCADStudio, _| state.active_theme.clone())
@@ -6652,7 +6663,7 @@ pub fn run_web() -> iced::Result {
     )
     .subscription(OpenCADStudio::subscription)
     .title(|_state: &OpenCADStudio| {
-        concat!("Open CAD Studio ", env!("OCS_APP_VERSION")).to_string()
+        concat!("CadMini Studio ", env!("OCS_APP_VERSION")).to_string()
     })
     .theme(|state: &OpenCADStudio| state.active_theme.clone())
     .backend(iced::Backend::Hardware(iced::backend::Api::OpenGL))

@@ -331,6 +331,8 @@ fn is_contextual(id: &str) -> bool {
 pub struct Ribbon {
     modules: Vec<Box<dyn CadModule>>,
     active: usize,
+    /// CadMini Studio: tabs the active workspace (2D / 3D) keeps out of sight.
+    workspace_hidden: &'static [&'static str],
     active_tool: Option<String>,
     pub wireframe: bool,
     pub ortho_mode: bool,
@@ -518,6 +520,7 @@ impl Ribbon {
 
     pub fn new() -> Self {
         Self {
+            workspace_hidden: crate::app::workspace::Workspace::Drafting2D.hidden_modules(),
             modules: all_ribbon_modules(),
             active: 0,
             active_tool: None,
@@ -637,13 +640,24 @@ impl Ribbon {
         index != self.active
             && self.modules.get(index).is_some_and(|module| {
                 !matches!(module.id(), "layout" | "block_editor")
-                    && self.layout.hidden_tabs.contains(module.id())
+                    && (self.layout.hidden_tabs.contains(module.id())
+                        || self.workspace_hidden.contains(&module.id()))
             })
+    }
+
+    /// CadMini Studio: hide the tabs the workspace does not use, moving off
+    /// the one on show when it is one of them.
+    pub fn set_workspace_hidden(&mut self, hidden: &'static [&'static str]) {
+        self.workspace_hidden = hidden;
+        self.show_a_visible_tab();
     }
 
     /// Move off a tab the user hid onto the first one still shown.
     fn show_a_visible_tab(&mut self) {
-        let hidden = |module: &dyn CadModule| self.layout.hidden_tabs.contains(module.id());
+        let hidden = |module: &dyn CadModule| {
+            self.layout.hidden_tabs.contains(module.id())
+                || self.workspace_hidden.contains(&module.id())
+        };
         if !self
             .modules
             .get(self.active)

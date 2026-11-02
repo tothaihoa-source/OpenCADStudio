@@ -30,7 +30,7 @@ use clap::Parser;
         "\nprofile: ", env!("OCS_BUILD_PROFILE"),
         "\nfeatures: ", env!("OCS_BUILD_FEATURES"),
     ),
-    about = crate::t!("Open CAD Studio — 2D/3D CAD editor").into_owned(),
+    about = crate::t!("CadMini Studio — 2D drafting with GIS and 3D modeling (based on Open CAD Studio)").into_owned(),
     long_about = None,
 )]
 pub struct Cli {

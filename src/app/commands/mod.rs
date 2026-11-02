@@ -4,6 +4,9 @@ use iced::Task;
 use std::path::PathBuf;
 
 mod attdef;
+mod workspace_cmd;
+mod gis_cmd;
+mod cadmini_cmd;
 mod attman;
 mod block_cmdline;
 mod blocks;
@@ -576,6 +579,16 @@ impl OpenCADStudio {
     /// `finish_dispatch`), or `None` to defer to the next — equivalent to one
     /// sequential `match` over all arms.
     fn dispatch_families(&mut self, cmd: &str, i: usize) -> Option<Task<Message>> {
+        // CadMini Studio: workspace switch, and the 3D-only guard in 2D.
+        if let Some(t) = self.dispatch_workspace(cmd, i) {
+            return Some(t);
+        }
+        if let Some(t) = self.dispatch_gis(cmd, i) {
+            return Some(t);
+        }
+        if let Some(t) = self.dispatch_cadmini(cmd, i) {
+            return Some(t);
+        }
         if let Some(t) = self.dispatch_text_layer(cmd, i) {
             return Some(t);
         }

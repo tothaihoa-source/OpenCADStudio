@@ -781,6 +781,11 @@ pub struct UserSettings {
     pub show_menu_bar: bool,
     /// RIBBONCLOSE hid the ribbon; RIBBON brings it back.
     pub ribbon_closed: bool,
+    /// CadMini Studio: the active workspace (WSCURRENT).
+    pub workspace: crate::app::workspace::Workspace,
+    /// CadMini Studio: HATCHFADE / LINEFADE, percent.
+    pub hatch_fade: u32,
+    pub line_fade: u32,
     /// When true, double-clicking a block reference starts REFEDIT instead of BEDIT.
     pub double_click_block_refedit: bool,
     /// When true, double-clicking a block with attributes opens ATTEDIT.
@@ -1326,8 +1331,12 @@ impl Default for UserSettings {
             aperture: crate::snap::DEFAULT_OSNAP_RADIUS_PX,
             hatch_associative: true,
             hatch_gap_tolerance: 0.0,
-            show_menu_bar: false,
-            ribbon_closed: false,
+            // CadMini Studio: classic pull-down menus, no ribbon.
+            show_menu_bar: true,
+            ribbon_closed: true,
+            workspace: crate::app::workspace::Workspace::default(),
+            hatch_fade: 0,
+            line_fade: 0,
             options_tab: crate::ui::window::options::OptionsTab::General,
             show_viewcube: true,
             show_ucs_icon: true,

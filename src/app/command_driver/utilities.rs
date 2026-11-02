@@ -1053,6 +1053,14 @@ impl OpenCADStudio {
             || tokens[0].eq_ignore_ascii_case("CAL")
             || tokens[0].eq_ignore_ascii_case("QUICKCALC")
             || tokens[0].eq_ignore_ascii_case("QC")
+            // CadMini Studio commands read their argument from the line;
+            // probing the bare word would toggle them first.
+            || [
+                "WSCURRENT", "WORKSPACE", "HATCHFADE", "LINEFADE", "GISCRS", "GISGOTO",
+                "GISIMPORT", "GISEXPORT",
+            ]
+            .iter()
+            .any(|verb| tokens[0].eq_ignore_ascii_case(verb))
         {
             return self.dispatch_command(cmd);
         }

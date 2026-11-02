@@ -2760,10 +2760,10 @@ fn donation_dialog_window(sizing: crate::ui::modal::ModalSizing) -> Element<'sta
 fn default_assoc_dialog_window(sizing: crate::ui::modal::ModalSizing) -> Element<'static, Message> {
     container(
         column![
-            text(t!("Make Open CAD Studio your default CAD app?"))
+            text(t!("Make CadMini Studio your default CAD app?"))
                 .size(15),
             iced::widget::Space::new().height(10),
-            text(t!("Open .dwg and .dxf drawings in Open CAD Studio by default. You can change this later in your system settings."))
+            text(t!("Open .dwg and .dxf drawings in CadMini Studio by default. You can change this later in your system settings."))
                 .size(12)
                 .style(dialog_muted_text_style),
             iced::widget::Space::new().height(22),

@@ -573,6 +573,7 @@ impl OpenCADStudio {
             tab.scene.active_model_tile_bounds(vw, vh).width
         };
         let viewcube_visible = self.show_viewcube
+            && self.workspace.is_3d()
             && !thumbnail_capture_clean
             && !tab.is_start
             && viewcube_has_room(render_bar_w, active_vp_w);
@@ -3829,6 +3830,7 @@ impl OpenCADStudio {
             drawings: self.open_drawings(),
             aliases: &self.command_line.command_aliases,
             is_start: self.tabs[self.active_tab].is_start,
+            workspace: self.workspace,
         }
     }
 }
@@ -4157,7 +4159,7 @@ fn start_page_content<'a>(
     active: super::StartSection,
     templates: Option<&'a [std::path::PathBuf]>,
 ) -> Element<'a, Message> {
-    let headline = text("Open CAD Studio").size(40).style(start_primary_style);
+    let headline = text("CadMini Studio").size(40).style(start_primary_style);
 
     // Plain outlined button (Open / New / Help / Contribute).
     let outline_btn = |label: String, msg: Message| {

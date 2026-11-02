@@ -5,6 +5,7 @@
 //   pick    — hit-testing, selection, grips, spatial index, xclip
 //   view    — camera, transforms, viewport, render pipeline driver
 //   cache   — block-definition and property caches
+pub mod display_fade;
 pub mod annotative;
 pub mod assoc_array;
 pub mod assoc_array_grips;
