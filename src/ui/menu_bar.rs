@@ -693,6 +693,8 @@ const MENUS: &[(&str, &[Entry])] = &[
             Cmd("Go to Lat/Long", "GISGOTO", ""),
             Cmd("Open Google Maps at Point", "GMAP", ""),
             Sep,
+            Cmd("Parcel Extract Sheet (TRICHLUC)...", "TRICHLUC", ""),
+            Cmd("Extract Sheets to PDF...", "TLPDF", ""),
             Sub(
                 "GPMB (Land Clearance)",
                 &[
@@ -706,6 +708,7 @@ const MENUS: &[(&str, &[Entry])] = &[
                     Cmd("Edit Parcel Data...", "GPMBEDIT", ""),
                     Cmd("Summary Table in Drawing", "GPMBTABLE", ""),
                     Cmd("Summary Table to Excel...", "GPMBXLSX", ""),
+                    Cmd("Extract Sheets to PDF...", "TLPDF", ""),
                 ],
             ),
         ],

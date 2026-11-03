@@ -102,6 +102,39 @@ thửa — giống CadMini, nên hai phần mềm đọc được kết quả c�
 | `GPMBEDIT` | Chọn một thửa, nhập lần lượt số thửa, tờ bản đồ, chủ sử dụng, loại đất, địa chỉ, ghi chú (Enter giữ giá trị cũ); lưu trong bản vẽ |
 | `GPMBTABLE` | Bảng tổng hợp vẽ vào bản vẽ tại góc chọn (layer `GPMB_BANG`): STT, số thửa, tờ, chủ, loại đất, DT thửa, DT thu hồi, DT còn lại, ghi chú; dòng tổng cộng, đất UBND quản lý, tổng diện tích trong ranh |
 | `GPMBXLSX` | Bảng tổng hợp ra file Excel `.xlsx` |
-| `GPMB4` | Trích lục từng thửa bị thu hồi — làm cùng lệnh TRICHLUC (đợt sau) |
+| `GPMB4` (B4 trích lục) | Một bản trích lục (TRICHLUC) cho mỗi thửa bị thu hồi, xếp thành lưới 5 tờ một hàng bên phải bản vẽ; phần thu hồi gạch chéo đỏ kèm nhãn diện tích, ghi chú *diện tích thu hồi / còn lại*; chỉ thửa đang xét (không chép thửa liền kề). Chạy lại: vẽ lại đúng chỗ cũ. `TLPDF` xuất tất cả ra một file PDF |
 
 Mảnh giao nhỏ hơn 0,1 m² hoặc dưới 0,2 % diện tích thửa coi là sai số số hoá (thửa chỉ chạm ranh).
+
+### 6. TRICHLUC — trích lục thửa đất (như CadMini)
+
+Menu **GIS › Parcel Extract Sheet (TRICHLUC)**, hoặc gõ `TRICHLUC` (`TL`). Chọn một polyline khép kín
+(đoạn cung giữ là cung), Enter. Dòng lệnh hiện tình trạng tờ trích lục và các nút:
+
+| Nút | Việc làm |
+|---|---|
+| **Draw** (Enter) | Vẽ bản trích lục |
+| **Parcel Info** | Nhập lần lượt số thửa, tờ bản đồ, mục đích sử dụng (gõ mã `ONT`, `LUC`, `CLN`… thành tên đầy đủ), người sử dụng, địa chỉ, ghi chú. Enter giữ giá trị cũ, `-` xoá |
+| **Signatures** | Tiêu đề, đơn vị, địa danh, ngày (dd/mm/yyyy), người trích lục, thủ trưởng, hệ toạ độ |
+| **A4/A3**, **Portrait/Landscape** | Khổ giấy, hướng giấy |
+| **Scale** | Tỉ lệ 1:n; `0` = tỉ lệ chuẩn nhỏ nhất vừa khung (100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000) |
+| **Beside/In Place** | Đặt tờ bên phải bản vẽ (chép thửa sang) hoặc tại chỗ, quanh thửa |
+| **Neighbors** | Chép các đối tượng nằm trọn trong khung bản đồ (thửa liền kề, số thửa…) sang tờ |
+| **Edge Lengths** | Ghi chiều dài cạnh |
+
+Bản trích lục gồm: khung tờ giấy (lề trái 20 mm đóng gáy), quốc hiệu, tiêu đề; thông tin thửa (số thửa,
+tờ, diện tích, mục đích, người sử dụng, địa chỉ, hệ toạ độ, ngày trích xuất, ghi chú); khung bản đồ
+với thửa, **số hiệu đỉnh đánh theo chiều kim đồng hồ từ góc Tây Bắc**, chiều dài cạnh, nhãn thửa
+(số thửa / diện tích / mã loại đất), mũi tên Bắc, tỉ lệ; **bảng toạ độ VN-2000** (X = Bắc, Y = Đông,
+cạnh i: từ điểm i đến i+1; nhiều đỉnh thì thu nhỏ dòng, chia nhiều cột); dòng địa danh, ngày tháng
+và phần ký. Mỗi tờ là một bước hoàn tác; layer `TL_KHUNG`, `TL_CHU`, `TL_SODINH`, `TL_CANH`,
+`TL_THUA`, `TL_THUHOI`.
+
+- **Sửa**: chạy lại `TRICHLUC` và chọn polyline thửa **hoặc bất kỳ nét nào của tờ trích lục** — các
+  thông số cũ hiện lại, Draw vẽ lại tờ đó tại chỗ.
+- Thửa đã có dữ liệu GPMB (B1 hoặc GPMBEDIT) thì số thửa, tờ, chủ, loại đất, địa chỉ tự điền; thửa bị
+  thu hồi (sau B3) có phần thu hồi gạch đỏ.
+- Đơn vị, địa danh, người ký, khổ/hướng giấy, tiêu đề… được nhớ cho lần trích lục sau.
+- Thông số lưu trong XDATA `CADMINI_TL` của polyline — giống CadMini, hai phần mềm sửa được tờ của nhau.
+- `TLPDF` (**GIS › Extract Sheets to PDF**): mọi tờ trích lục trong bản vẽ ra **một file PDF**, mỗi tờ
+  một trang đúng khổ giấy và tỉ lệ, in đen trắng (monochrome), nét theo lineweight.

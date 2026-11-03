@@ -261,7 +261,12 @@ pub(in crate::app) fn flatten_lw(pl: &codec::entities::LwPolyline) -> Vec<Xy> {
                 let ny = (b[0] - a[0]) / chord;
                 let c = [mid[0] + nx * d, mid[1] + ny * d];
                 let a0 = (a[1] - c[1]).atan2(a[0] - c[0]);
-                let steps = ((theta.abs() / (std::f64::consts::PI / 36.0)).ceil() as usize).max(2);
+                // Chords within 0.5 mm of the arc (areas for GPMB), a step
+                // between 0.25° and 5°.
+                let tol = 0.0005f64;
+                let ratio = (1.0 - tol / r.abs()).clamp(-1.0, 1.0);
+                let step = (2.0 * ratio.acos()).clamp(0.25f64.to_radians(), 5f64.to_radians());
+                let steps = ((theta.abs() / step).ceil() as usize).max(2);
                 for s in 1..steps {
                     let t = a0 + theta * s as f64 / steps as f64;
                     out.push([c[0] + r.abs() * t.cos(), c[1] + r.abs() * t.sin()]);

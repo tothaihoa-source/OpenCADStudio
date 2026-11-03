@@ -898,6 +898,9 @@ pub(super) struct OpenCADStudio {
     basemap: crate::gis::basemap::Basemap,
     /// CadMini Studio: GPMB's state per drawing (tab id).
     gpmb: std::collections::HashMap<u64, commands::gpmb_cmd::GpmbState>,
+    /// CadMini Studio: TRICHLUC's remembered fields and the sheet being set up.
+    trichluc_defaults: String,
+    trichluc: Option<commands::trichluc_cmd::Pending>,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -5707,6 +5710,8 @@ impl OpenCADStudio {
             cadmini_first_run_done: false,
             basemap: crate::gis::basemap::Basemap::new(true, "esri_imagery", "", 1.0),
             gpmb: std::collections::HashMap::new(),
+            trichluc_defaults: String::new(),
+            trichluc: None,
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,

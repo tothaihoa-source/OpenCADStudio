@@ -45,11 +45,11 @@ impl GpmbState {
 }
 
 /// Gathers a selection (Enter confirms), then dispatches `run`.
-struct PickThenRun {
-    name: &'static str,
-    prompt: &'static str,
-    run: &'static str,
-    selected: Vec<Handle>,
+pub(super) struct PickThenRun {
+    pub name: &'static str,
+    pub prompt: &'static str,
+    pub run: &'static str,
+    pub selected: Vec<Handle>,
 }
 
 impl CadCommand for PickThenRun {
@@ -180,7 +180,7 @@ impl CadCommand for EditParcel {
 
 // ── Reading the drawing ─────────────────────────────────────────────────────
 
-fn model_entities(scene: &crate::scene::Scene) -> Vec<EntityType> {
+pub(super) fn model_entities(scene: &crate::scene::Scene) -> Vec<EntityType> {
     let model = scene.model_space_block_handle();
     scene
         .document
@@ -250,7 +250,7 @@ fn open_chain(e: &EntityType) -> Option<Vec<Xy>> {
 }
 
 /// MTEXT without its formatting codes.
-fn plain_mtext(s: &str) -> String {
+pub(super) fn plain_mtext(s: &str) -> String {
     let mut out = String::new();
     let mut chars = s.chars().peekable();
     while let Some(c) = chars.next() {
@@ -354,7 +354,7 @@ fn set_saved_data(e: &mut EntityType, d: &G::ParcelData) {
 
 // ── Writing ─────────────────────────────────────────────────────────────────
 
-fn on_layer(mut e: EntityType, layer: &str, color: Option<i16>) -> EntityType {
+pub(super) fn on_layer(mut e: EntityType, layer: &str, color: Option<i16>) -> EntityType {
     let c = e.common_mut();
     c.layer = layer.to_string();
     c.color = color.map_or(codec::types::Color::ByLayer, codec::types::Color::from_index);
@@ -402,7 +402,7 @@ fn line(a: Xy, b: Xy, layer: &str) -> EntityType {
 
 /// A hatch over `poly` with ISO-like line families (`angles_deg`) `spacing`
 /// apart, whatever the drawing's units.
-fn hatch(poly: &geo::Polygon<f64>, layer: &str, name: &str, angles_deg: &[f64], spacing: f64) -> EntityType {
+pub(super) fn hatch(poly: &geo::Polygon<f64>, layer: &str, name: &str, angles_deg: &[f64], spacing: f64) -> EntityType {
     use codec::entities::{BoundaryEdge, BoundaryPath, BoundaryPathFlags, HatchPattern, HatchPatternLine, PolylineEdge};
     let mut h = codec::entities::Hatch::new();
     for (k, ring) in G::rings(poly).iter().enumerate() {
@@ -983,13 +983,6 @@ impl OpenCADStudio {
             ("GPMBXLSXFILE", _) if !rest.is_empty() => {
                 let path = if rest.to_lowercase().ends_with(".xlsx") { rest.to_string() } else { format!("{rest}.xlsx") };
                 Some(self.gpmb_xlsx(i, &path))
-            }
-            ("GPMB", "B4") | ("GPMB4", "") => {
-                self.command_line.push_info(
-                    crate::t!("GPMB B4 (parcel extract sheets) comes with TRICHLUC, the next step of CadMini Studio.")
-                        .as_ref(),
-                );
-                Some(Task::none())
             }
             _ => None,
         }
