@@ -904,6 +904,7 @@ pub(super) struct OpenCADStudio {
     /// CadMini Studio: XUAT's options (JSON) and the window being exported.
     xuat_options: String,
     xuat: Option<commands::xuat_cmd::Pending>,
+    cadmini_dialog: Option<commands::cadmini_dialogs::Dialog>,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -2926,6 +2927,8 @@ pub enum ModalKind {
     FindReplace,
     /// OVERKILL settings for the selected objects.
     Overkill,
+    /// CadMini Studio's dialogs (GPMB, TRICHLUC, XUAT, GISCRS).
+    CadMini,
     AecDropWarning,
     /// A converter would drop part of the drawing on save.
     ConversionLoss,
@@ -3183,6 +3186,8 @@ pub enum Message {
     FindReplaceFindAll,
     FindReplaceSelectResult(usize),
     OverkillSettingsChanged(crate::modules::draw::modify::overkill::Settings),
+    /// CadMini Studio's dialogs.
+    CadMini(crate::ui::window::cadmini::Msg),
     OverkillToleranceChanged(String),
     OverkillOk,
     /// System-clipboard text read for the MText editor (`None` = empty/denied).
@@ -5717,6 +5722,7 @@ impl OpenCADStudio {
             trichluc: None,
             xuat_options: String::new(),
             xuat: None,
+            cadmini_dialog: None,
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,

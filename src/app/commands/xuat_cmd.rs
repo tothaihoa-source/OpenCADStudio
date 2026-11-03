@@ -43,6 +43,10 @@ pub struct Options {
     pub dpi: u32,
     pub satellite: bool,
     pub open: bool,
+    /// The background's source for exports (empty: the screen's).
+    pub sat_source: String,
+    /// Its strength, 0.1–1.
+    pub sat_opacity: f32,
 }
 
 impl Default for Options {
@@ -58,6 +62,8 @@ impl Default for Options {
             dpi: 200,
             satellite: false,
             open: true,
+            sat_source: String::new(),
+            sat_opacity: 1.0,
         }
     }
 }
@@ -134,8 +140,8 @@ impl Options {
 
 /// The window being exported and its options.
 pub(in crate::app) struct Pending {
-    tab: u64,
-    window: [f64; 4],
+    pub(super) tab: u64,
+    pub(super) window: [f64; 4],
 }
 
 /// XUAT's first step: two corners.
@@ -347,16 +353,16 @@ pub(in crate::app) fn write_export(
 }
 
 impl OpenCADStudio {
-    fn xuat_options(&self) -> Options {
+    pub(super) fn xuat_options(&self) -> Options {
         serde_json::from_str(&self.xuat_options).unwrap_or_default()
     }
 
-    fn xuat_store(&mut self, o: &Options) {
+    pub(super) fn xuat_store(&mut self, o: &Options) {
         self.xuat_options = serde_json::to_string(o).unwrap_or_default();
         self.persist_settings_if_changed();
     }
 
-    fn xuat_show_menu(&mut self, i: usize) -> Task<Message> {
+    pub(super) fn xuat_show_menu(&mut self, i: usize) -> Task<Message> {
         let Some(pd) = &self.xuat else { return Task::none() };
         let has_crs = super::gis_cmd::drawing_crs(&self.tabs[i].scene.document).is_some();
         let c: Box<dyn CadCommand> = Box::new(Menu { summary: self.xuat_options().summary(pd.window, has_crs), value: None });
@@ -366,7 +372,7 @@ impl OpenCADStudio {
     }
 
     /// The page and what the worker needs, from the drawing as it stands.
-    fn xuat_job(
+    pub(super) fn xuat_job(
         &self,
         i: usize,
         window: [f64; 4],
@@ -376,14 +382,21 @@ impl OpenCADStudio {
         let input = self.window_plot_page(window, page.paper, page.mm_per_unit, page.target, opts.monochrome);
         let background = if opts.satellite {
             super::gis_cmd::drawing_crs(&self.tabs[i].scene.document)
-                .map(|crs| (crs, self.basemap.source(), self.basemap.opacity))
+                .map(|crs| {
+                    let source = if opts.sat_source.is_empty() {
+                        self.basemap.source()
+                    } else {
+                        crate::gis::tiles::source(&opts.sat_source, &self.basemap.custom_url)
+                    };
+                    (crs, source, opts.sat_opacity.clamp(0.1, 1.0))
+                })
         } else {
             None
         };
         (input, page, background)
     }
 
-    fn xuat_save(&mut self, i: usize, path: &str) -> Task<Message> {
+    pub(super) fn xuat_save(&mut self, i: usize, path: &str) -> Task<Message> {
         let Some(pd) = self.xuat.take() else { return Task::none() };
         if pd.tab != self.tabs[i].id {
             return Task::none();
@@ -449,7 +462,8 @@ impl OpenCADStudio {
                 }
                 let window = [v[0].min(v[2]), v[1].min(v[3]), v[0].max(v[2]), v[1].max(v[3])];
                 self.xuat = Some(Pending { tab: self.tabs[i].id, window });
-                Some(self.xuat_show_menu(i))
+                self.open_xuat_dialog(i);
+                Some(Task::none())
             }
             "XUATSET" => {
                 if self.xuat.is_none() {

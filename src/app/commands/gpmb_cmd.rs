@@ -36,6 +36,8 @@ pub(in crate::app) struct GpmbState {
     pub rows: Vec<G::Row>,
     pub out_parts: Vec<geo::Polygon<f64>>,
     pub total: f64,
+    /// B3 was started from the GPMB dialog: show it again when done.
+    pub reopen: bool,
 }
 
 impl GpmbState {
@@ -197,7 +199,7 @@ fn own_layer(layer: &str) -> bool {
 }
 
 /// The closed outline of a parcel entity, arcs split.
-fn closed_ring(e: &EntityType) -> Option<Vec<Xy>> {
+pub(super) fn closed_ring(e: &EntityType) -> Option<Vec<Xy>> {
     match e {
         EntityType::LwPolyline(pl) => {
             let mut pts = super::gis_cmd::flatten_lw(pl);
@@ -331,7 +333,7 @@ fn labels(entities: &[EntityType]) -> Vec<G::Label> {
     out
 }
 
-fn saved_data(e: &EntityType) -> Option<G::ParcelData> {
+pub(super) fn saved_data(e: &EntityType) -> Option<G::ParcelData> {
     let record = e.common().extended_data.get_record(G::APPID)?;
     let strings: Vec<String> = record
         .values
@@ -344,7 +346,7 @@ fn saved_data(e: &EntityType) -> Option<G::ParcelData> {
     G::data_from_xdata(&strings)
 }
 
-fn set_saved_data(e: &mut EntityType, d: &G::ParcelData) {
+pub(super) fn set_saved_data(e: &mut EntityType, d: &G::ParcelData) {
     let mut record = codec::xdata::ExtendedDataRecord::new(G::APPID);
     for s in G::data_to_xdata(d) {
         record.add_value(codec::xdata::XDataValue::String(s));
@@ -433,7 +435,7 @@ pub(super) fn hatch(poly: &geo::Polygon<f64>, layer: &str, name: &str, angles_de
 }
 
 impl OpenCADStudio {
-    fn gpmb_state(&mut self, i: usize) -> &mut GpmbState {
+    pub(super) fn gpmb_state(&mut self, i: usize) -> &mut GpmbState {
         let id = self.tabs[i].id;
         self.gpmb.entry(id).or_insert_with(GpmbState::new)
     }
@@ -489,7 +491,7 @@ impl OpenCADStudio {
 
     /// With no parcel layer chosen, take the layer holding the most closed
     /// shapes (the parcels, not the one GPMB boundary) and say so.
-    fn gpmb_default_layers(&mut self, i: usize) {
+    pub(super) fn gpmb_default_layers(&mut self, i: usize) {
         if !self.gpmb_state(i).layers.is_empty() {
             return;
         }
@@ -532,7 +534,7 @@ impl OpenCADStudio {
     }
 
     /// B1: gather the texts; mark parcels missing data.
-    fn gpmb_step1(&mut self, i: usize, undo: bool) -> Task<Message> {
+    pub(super) fn gpmb_step1(&mut self, i: usize, undo: bool) -> Task<Message> {
         let (shapes, labels) = self.gpmb_read(i);
         if shapes.is_empty() {
             self.command_line.push_error(
@@ -574,7 +576,7 @@ impl OpenCADStudio {
 
     /// B2: close the small gaps, trace parcels from loose lines, mark the
     /// dangling ends, then B1 again and write the areas.
-    fn gpmb_step2(&mut self, i: usize) -> Task<Message> {
+    pub(super) fn gpmb_step2(&mut self, i: usize) -> Task<Message> {
         self.gpmb_default_layers(i);
         let tol = self.gpmb_state(i).tol;
         let layers: Vec<String> = self.gpmb_state(i).layers.iter().map(|l| l.to_lowercase()).collect();
@@ -833,7 +835,11 @@ impl OpenCADStudio {
             Some(Task::none())
         };
         match (verb.as_str(), rest.to_ascii_uppercase().as_str()) {
-            ("GPMB", "") => start(
+            ("GPMB", "") => {
+                self.open_gpmb_dialog(i);
+                Some(Task::none())
+            }
+            ("GPMBSTEPS", "") => start(
                 self,
                 Box::new(
                     KeywordCommand::new(
@@ -899,7 +905,11 @@ impl OpenCADStudio {
                     self.tabs[i].scene.deselect_all();
                     self.tabs[i].scene.select_entity(Handle::new(h), false);
                 }
-                Some(self.gpmb_step3(i))
+                let t = self.gpmb_step3(i);
+                if std::mem::take(&mut self.gpmb_state(i).reopen) {
+                    self.open_gpmb_dialog(i);
+                }
+                Some(t)
             }
             ("GPMB", "EDIT") | ("GPMBEDIT", "") => start(
                 self,

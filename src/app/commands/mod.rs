@@ -9,6 +9,7 @@ pub(in crate::app) mod gis_cmd;
 pub(in crate::app) mod gpmb_cmd;
 pub(in crate::app) mod trichluc_cmd;
 pub(in crate::app) mod xuat_cmd;
+pub(in crate::app) mod cadmini_dialogs;
 mod cadmini_cmd;
 mod attman;
 mod block_cmdline;

@@ -57,6 +57,9 @@ const GIS: &[Entry] = &[
     ("GISLL", "Point Lat/Long", "⌖"),
     ("GISIMPORT", "Import GIS Data", "⇩"),
     ("GISEXPORT", "Export GIS Data", "⇧"),
+    ("GPMB", "Land Clearance (GPMB)", "▦"),
+    ("TRICHLUC", "Parcel Extract Sheet (TRICHLUC)", "▤"),
+    ("XUAT", "Export Window to PDF/JPG/PNG (XUAT)", "⎙"),
 ];
 
 const FADE: &[Entry] = &[

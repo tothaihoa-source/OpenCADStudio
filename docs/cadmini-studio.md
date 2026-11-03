@@ -161,3 +161,21 @@ Background**, hoặc gõ `XUAT` (`EXPORTWIN`). Chọn hai góc của vùng xuấ
   nhớ đệm trên đĩa nếu đã có.
 - Việc tải ảnh và ghi file chạy nền, không treo chương trình; xong thì file tự mở.
 - Lựa chọn được nhớ cho lần sau.
+
+### Hộp thoại (như CadMini)
+
+Các chức năng CadMini dùng hộp thoại thay cho hỏi đáp trên dòng lệnh; nút trên thanh công cụ **GIS**
+(cổ điển) và menu **GIS**:
+
+- **GPMB**: một cửa sổ — tích layer ranh thửa, khe hở đóng thửa, mảnh vụn; nút **B1, B2, B3, B4**;
+  bảng dữ liệu thửa sửa thẳng (số thửa, tờ, chủ, loại đất, địa chỉ) → **Lưu phần bổ sung**; ⌕ phóng
+  tới thửa trên bản vẽ; lọc thửa thiếu thông tin; **Xuất Excel**, **Ghi bảng tổng hợp**. B1/B2 chạy
+  xong bảng cập nhật ngay; B3 chọn ranh xong hộp thoại mở lại với kết quả.
+- **TRICHLUC**: chọn thửa → một form đủ thông tin thửa, trình bày (khổ, hướng, tỉ lệ, vị trí, các
+  tuỳ chọn) và phần ký → **Vẽ trích lục**.
+- **XUAT**: chọn vùng → form định dạng, khổ, hướng, tỉ lệ, lề, dpi, nét đen trắng, nền vệ tinh (nguồn,
+  độ đậm), file (**Chọn…**) → **Xuất**.
+- **GISCRS**: chọn tỉnh (34 tỉnh mới hoặc 63 tỉnh cũ) hoặc gõ kinh tuyến trục; bật nền vệ tinh,
+  nguồn ảnh, độ đậm. `GISSAT` khi bản vẽ chưa có hệ toạ độ cũng mở hộp thoại này.
+
+Các lệnh dạng có tham số (`GPMB1`, `GPMB3`, `_TLSET`, `_XUATSET`, `GISCRS Hà Tĩnh`…) vẫn dùng được trong script.

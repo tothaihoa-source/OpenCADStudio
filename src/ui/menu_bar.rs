@@ -700,6 +700,8 @@ const MENUS: &[(&str, &[Entry])] = &[
             Sub(
                 "GPMB (Land Clearance)",
                 &[
+                    Cmd("GPMB Dialog (Layers, Steps, Parcel Table)...", "GPMB", ""),
+                    Sep,
                     Cmd("Parcel Layers...", "GPMBLAYERS", ""),
                     Sep,
                     Cmd("B1 Clean: Gather Parcel Data", "GPMB1", ""),

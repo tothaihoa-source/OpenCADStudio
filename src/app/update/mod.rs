@@ -159,6 +159,9 @@ impl OpenCADStudio {
         if self.active_modal == Some(BlockEditorSettings) {
             self.block_editor_settings = None;
         }
+        if self.active_modal == Some(CadMini) {
+            self.cadmini_dialog = None;
+        }
         if self.active_modal == Some(BlockCycleOrder) {
             self.block_cycle_order = None;
         }
@@ -8555,6 +8558,7 @@ impl OpenCADStudio {
                 }
                 Task::none()
             }
+            Message::CadMini(msg) => self.on_cadmini_msg(msg),
             Message::OverkillToleranceChanged(value) => {
                 if let Some(state) = &mut self.overkill_dialog {
                     state.tolerance = value;

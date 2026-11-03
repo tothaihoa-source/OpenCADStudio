@@ -22,10 +22,10 @@ use iced::Task;
 
 /// The sheet being set up: its source polyline and parameters.
 pub(in crate::app) struct Pending {
-    tab: u64,
-    src: u64,
-    params: Params,
-    editing: bool,
+    pub(super) tab: u64,
+    pub(super) src: u64,
+    pub(super) params: Params,
+    pub(super) editing: bool,
 }
 
 const MENU: &[(&str, &str)] = &[
@@ -391,7 +391,7 @@ impl OpenCADStudio {
         None
     }
 
-    fn tl_show_menu(&mut self, i: usize) -> Task<Message> {
+    pub(super) fn tl_show_menu(&mut self, i: usize) -> Task<Message> {
         let Some(pd) = &self.trichluc else { return Task::none() };
         let p = &pd.params;
         let scale = if p.scale > 0 { format!("1:{}", p.scale) } else { "1:auto".into() };
@@ -505,7 +505,7 @@ impl OpenCADStudio {
         self.handle_zoom_to_window(DVec3::new(b[0] - mx, b[1] - my, 0.0), DVec3::new(b[2] + mx, b[3] + my, 0.0));
     }
 
-    fn tl_draw(&mut self, i: usize) -> Task<Message> {
+    pub(super) fn tl_draw(&mut self, i: usize) -> Task<Message> {
         let Some(pd) = self.trichluc.take() else { return Task::none() };
         if pd.tab != self.tabs[i].id {
             return Task::none();
@@ -583,7 +583,7 @@ impl OpenCADStudio {
     }
 
     /// GPMB B4: a sheet for each parcel B3 found taken.
-    fn gpmb_step4(&mut self, i: usize) -> Task<Message> {
+    pub(super) fn gpmb_step4(&mut self, i: usize) -> Task<Message> {
         let id = self.tabs[i].id;
         let rows: Vec<G::Row> = self.gpmb.get(&id).map(|st| st.rows.clone()).unwrap_or_default();
         if rows.is_empty() {
@@ -713,7 +713,8 @@ impl OpenCADStudio {
                     p
                 });
                 self.trichluc = Some(Pending { tab: self.tabs[i].id, src: src.value(), params, editing });
-                Some(self.tl_show_menu(i))
+                self.open_trichluc_dialog(i);
+                Some(Task::none())
             }
             "TLSET" => {
                 let Some(pd) = self.trichluc.as_mut() else { return Some(Task::none()) };

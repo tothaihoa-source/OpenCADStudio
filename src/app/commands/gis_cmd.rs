@@ -308,6 +308,11 @@ impl OpenCADStudio {
             );
             return Task::none();
         };
+        self.gis_store_crs(i, system)
+    }
+
+    /// Keep `system` as the drawing's coordinate system (one undo step).
+    pub(in crate::app) fn gis_store_crs(&mut self, i: usize, system: DrawingCrs) -> Task<Message> {
         self.push_undo_snapshot(i, "GISCRS");
         let props = &mut self.tabs[i].scene.document.summary_info.custom_properties;
         let text = system.to_text();
@@ -529,6 +534,10 @@ impl OpenCADStudio {
                 Some(Task::none())
             }
             "GISCRS" => {
+                self.open_crs_dialog(i);
+                Some(Task::none())
+            }
+            "GISCRSLINE" => {
                 let current = drawing_crs(&self.tabs[i].scene.document)
                     .map(|c| c.label())
                     .unwrap_or_else(|| crate::t!("none").into_owned());

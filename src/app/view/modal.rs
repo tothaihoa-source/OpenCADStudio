@@ -26,6 +26,7 @@ impl OpenCADStudio {
             Some(K::Options) => crate::tr!("action", "options"),
             Some(K::FindReplace) => crate::tr!("modal", "find-replace"),
             Some(K::Overkill) => crate::t!("Delete Duplicate Objects").into_owned(),
+            Some(K::CadMini) => self.cadmini_dialog.as_ref().map_or("CadMini", |d| d.title()).to_string(),
             Some(K::PluginManager) => crate::tr!("modal", "plugin-manager"),
             Some(K::UpdateNotice) => crate::tr!("modal", "update-available"),
             Some(K::DonationPrompt) => crate::tr!("donation", "title"),
@@ -344,6 +345,14 @@ impl OpenCADStudio {
                     flow,
                 )
             }),
+            super::super::ModalKind::CadMini => {
+                let d = self.cadmini_dialog.as_ref()?;
+                let (w, h) = match d {
+                    crate::app::commands::cadmini_dialogs::Dialog::Gpmb(_) => (1000, 680),
+                    _ => (600, 720),
+                };
+                sized_flow(ex, w, h, |flow| crate::app::commands::cadmini_dialogs::view(d, flow))
+            }
             super::super::ModalKind::Overkill => {
                 let state = self.overkill_dialog.as_ref()?;
                 automatic_flow(ex, |flow| crate::ui::window::overkill::view_window(state, flow))
