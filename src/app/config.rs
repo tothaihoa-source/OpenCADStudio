@@ -97,7 +97,9 @@ pub struct UiThemeConfig {
 
 impl Default for UiThemeConfig {
     fn default() -> Self {
-        let theme = iced::Theme::Oxocarbon;
+        // CadMini Studio: a light program (the drawing area stays dark,
+        // see `ModelSpaceMode::ClassicDark`).
+        let theme = iced::Theme::Light;
         Self {
             name: theme.to_string(),
             palette: UiThemePalette::from_iced(theme.seed()),
@@ -304,9 +306,10 @@ pub(crate) fn parse_hex(value: &str) -> Option<[u8; 3]> {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum ModelSpaceMode {
     /// Canvas background dynamically follows the active UI theme.
-    #[default]
     MatchTheme,
     /// Classic CAD dark charcoal canvas (#212830) regardless of UI theme.
+    /// CadMini Studio's default: a light program around a dark drawing.
+    #[default]
     ClassicDark,
     /// Custom background colors specified by the user.
     Custom,
@@ -384,7 +387,7 @@ pub struct ModelSpaceThemeConfig {
 impl Default for ModelSpaceThemeConfig {
     fn default() -> Self {
         Self {
-            mode: ModelSpaceMode::MatchTheme,
+            mode: ModelSpaceMode::ClassicDark,
             custom_bg: None,
             custom_paper_bg: None,
             custom_desk_bg: None,
@@ -643,7 +646,8 @@ mod tests {
     #[test]
     fn test_model_space_defaults() {
         let cfg = ModelSpaceThemeConfig::default();
-        assert_eq!(cfg.mode, ModelSpaceMode::MatchTheme);
+        // CadMini Studio: the drawing area is dark whatever the program theme.
+        assert_eq!(cfg.mode, ModelSpaceMode::ClassicDark);
         assert_eq!(cfg.custom_bg, None);
         assert_eq!(cfg.custom_paper_bg, None);
         assert_eq!(cfg.grid_opacity, 18);

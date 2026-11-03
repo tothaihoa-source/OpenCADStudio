@@ -6067,7 +6067,7 @@ impl OpenCADStudio {
             .ok(),
             plotstyle_panel_baseline: None,
             // Color scheme (default: Oxocarbon)
-            active_theme: Theme::Oxocarbon,
+            active_theme: Theme::Light,
             ui_theme: config::UiThemeConfig::default(),
             theme_color_inputs: config::UiThemePalette::default().hex_values(),
             model_space: config::ModelSpaceThemeConfig::default(),

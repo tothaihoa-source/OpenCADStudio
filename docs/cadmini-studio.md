@@ -20,6 +20,8 @@ Chuyển không gian: **Tools › Workspaces › 2D Drafting / 3D Modeling**, ho
 `WS2D`, `WS3D`, `WSCURRENT 2D|3D` (`WSCURRENT` không tham số: đổi qua lại).
 Lựa chọn được nhớ cho lần mở sau.
 
+Giao diện mặc định: **chế độ sáng**, vùng vẽ **nền tối** (đổi ở Options).
+
 ### 2. Hai kiểu giao diện: Cổ điển (menu + toolbar) và Ribbon
 
 Chọn ở **Tools › Workspaces › Classic Menus and Toolbars / Ribbon**, hoặc gõ
@@ -79,7 +81,7 @@ Text/MText (điểm, thuộc tính `name`), Block (điểm chèn, thuộc tính 
 | `HATCHFADE [0–90]` | View › Fade › Hatch Fade … | Vẽ hatch mờ đi (đặc, mẫu, gradient) để nổi nét vẽ. Gõ không kèm số: hỏi %, Enter đổi tắt ↔ 50 % |
 | `LINEFADE [0–90]` | View › Fade › Line Fade … | Vẽ nét, cung, chữ mờ đi để nổi hatch/ảnh nền |
 | `TPY` (`TRANSPARENCYDISPLAY`) | View › Fade › Transparency Display | Bật/tắt hiển thị độ trong suốt của layer/đối tượng |
-| `HATCHB` (`HATCHGENERATEBOUNDARY`) | Modify › Object › Hatch Boundary to Polyline | Tạo polyline kín theo từng vòng biên của các hatch đã chọn, trên layer hiện hành; hatch giữ nguyên; hoàn tác một bước |
+| `HATCHB` (`HATCHGENERATEBOUNDARY`) | Modify › Object › Hatch Boundary to Polyline | Tạo polyline kín theo từng vòng biên của các hatch đã chọn, trên layer hiện hành; đoạn thẳng giữ đỉnh, **cung tròn giữ là cung** (bulge), chỉ elip/spline được chia nhỏ; hatch giữ nguyên; hoàn tác một bước |
 
 Mức mờ được nhớ cho lần mở sau; chỉ là cách hiển thị trên màn hình, không đổi dữ liệu bản vẽ.
 Lưu ý: lựa chọn `ALL` chưa lấy được hatch tô đặc — hãy chọn hatch bằng cách bấm
