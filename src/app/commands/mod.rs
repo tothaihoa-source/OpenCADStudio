@@ -6,6 +6,7 @@ use std::path::PathBuf;
 mod attdef;
 mod workspace_cmd;
 pub(in crate::app) mod gis_cmd;
+pub(in crate::app) mod gpmb_cmd;
 mod cadmini_cmd;
 mod attman;
 mod block_cmdline;
@@ -587,6 +588,9 @@ impl OpenCADStudio {
             return Some(t);
         }
         if let Some(t) = self.dispatch_cadmini(cmd, i) {
+            return Some(t);
+        }
+        if let Some(t) = self.dispatch_gpmb(cmd, i) {
             return Some(t);
         }
         if let Some(t) = self.dispatch_text_layer(cmd, i) {

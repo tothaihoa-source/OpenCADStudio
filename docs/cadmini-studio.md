@@ -86,3 +86,22 @@ Text/MText (điểm, thuộc tính `name`), Block (điểm chèn, thuộc tính 
 Mức mờ được nhớ cho lần mở sau; chỉ là cách hiển thị trên màn hình, không đổi dữ liệu bản vẽ.
 Lưu ý: lựa chọn `ALL` chưa lấy được hatch tô đặc — hãy chọn hatch bằng cách bấm
 hoặc khung chọn.
+
+### 5. GPMB — giải phóng mặt bằng 4 bước (như CadMini)
+
+Menu **GIS › GPMB (Land Clearance)**, hoặc gõ `GPMB` để hiện các bước thành nút trên dòng lệnh.
+Mỗi bước là một bước hoàn tác (Undo). Dữ liệu thửa được lưu trong XDATA `CADMINI_GPMB` của polyline
+thửa — giống CadMini, nên hai phần mềm đọc được kết quả của nhau.
+
+| Lệnh | Việc làm |
+|---|---|
+| `GPMBLAYERS` | Chọn một đối tượng trên mỗi layer thửa (Enter không chọn gì: dùng mọi layer) |
+| `GPMB1` (B1 làm sạch) | Mỗi thửa kín (polyline kín, đường tròn) gom chữ / MTEXT / thuộc tính block nằm trong nó: **số thửa** (số gần tâm, chữ to), **chủ sử dụng**, **loại đất** (mã ONT, LUC, CLN…), **diện tích ghi**; thuộc tính block theo tag (`SO_THUA`, `CHU`, `LOAI_DAT`, `DIEN_TICH`, `TO`…). Chữ nằm trong thửa lồng nhau thuộc thửa nhỏ nhất. Thửa thiếu thông tin có dấu **?** (layer `GPMB_THIEU_TT`) |
+| `GPMB2` (B2 bo thửa) | Đóng polyline hở có khe ≤ 0,05 m; dựng thửa từ đường rời ở chỗ chưa có thửa kín (layer `GPMB_THUA_BO`); dấu **X** ở đầu mút treo cần xem lại (`GPMB_LOI`); rồi chạy lại B1 và ghi diện tích lên từng thửa (`GPMB_DIEN_TICH`) |
+| `GPMB3` (B3 tính) | Chọn ranh GPMB (polyline kín): giao từng thửa với ranh → diện tích **thu hồi / còn lại**, ghi chú *thu hồi toàn bộ / một phần (n phần)*; phần trong ranh không thuộc thửa nào là **đất UBND quản lý**. Vẽ hatch đỏ gạch chéo phần thu hồi (`GPMB_THU_HOI`), hatch xanh phần UBND (`GPMB_NGOAI_THUA`), nhãn `TH số: diện tích` (`GPMB_NHAN`); hatch nằm dưới nét thửa |
+| `GPMBEDIT` | Chọn một thửa, nhập lần lượt số thửa, tờ bản đồ, chủ sử dụng, loại đất, địa chỉ, ghi chú (Enter giữ giá trị cũ); lưu trong bản vẽ |
+| `GPMBTABLE` | Bảng tổng hợp vẽ vào bản vẽ tại góc chọn (layer `GPMB_BANG`): STT, số thửa, tờ, chủ, loại đất, DT thửa, DT thu hồi, DT còn lại, ghi chú; dòng tổng cộng, đất UBND quản lý, tổng diện tích trong ranh |
+| `GPMBXLSX` | Bảng tổng hợp ra file Excel `.xlsx` |
+| `GPMB4` | Trích lục từng thửa bị thu hồi — làm cùng lệnh TRICHLUC (đợt sau) |
+
+Mảnh giao nhỏ hơn 0,1 m² hoặc dưới 0,2 % diện tích thửa coi là sai số số hoá (thửa chỉ chạm ranh).

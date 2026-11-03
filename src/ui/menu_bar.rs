@@ -692,6 +692,22 @@ const MENUS: &[(&str, &[Entry])] = &[
             Cmd("Point Coordinates (Lat/Long)", "GISLL", ""),
             Cmd("Go to Lat/Long", "GISGOTO", ""),
             Cmd("Open Google Maps at Point", "GMAP", ""),
+            Sep,
+            Sub(
+                "GPMB (Land Clearance)",
+                &[
+                    Cmd("Parcel Layers...", "GPMBLAYERS", ""),
+                    Sep,
+                    Cmd("B1 Clean: Gather Parcel Data", "GPMB1", ""),
+                    Cmd("B2 Trace: Close and Build Parcels", "GPMB2", ""),
+                    Cmd("B3 Compute: Areas Inside the Boundary", "GPMB3", ""),
+                    Cmd("B4 Parcel Extract Sheets", "GPMB4", ""),
+                    Sep,
+                    Cmd("Edit Parcel Data...", "GPMBEDIT", ""),
+                    Cmd("Summary Table in Drawing", "GPMBTABLE", ""),
+                    Cmd("Summary Table to Excel...", "GPMBXLSX", ""),
+                ],
+            ),
         ],
     ),
     (

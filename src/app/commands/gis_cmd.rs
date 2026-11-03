@@ -236,7 +236,7 @@ fn entity_feature(e: &EntityType) -> Option<Feature> {
 }
 
 /// A lightweight polyline's points, arcs split into short chords.
-fn flatten_lw(pl: &codec::entities::LwPolyline) -> Vec<Xy> {
+pub(in crate::app) fn flatten_lw(pl: &codec::entities::LwPolyline) -> Vec<Xy> {
     let v = &pl.vertices;
     let mut out = Vec::new();
     let n = v.len();

@@ -896,6 +896,8 @@ pub(super) struct OpenCADStudio {
     cadmini_first_run_done: bool,
     /// CadMini Studio: the satellite / map background (GISSAT).
     basemap: crate::gis::basemap::Basemap,
+    /// CadMini Studio: GPMB's state per drawing (tab id).
+    gpmb: std::collections::HashMap<u64, commands::gpmb_cmd::GpmbState>,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -5704,6 +5706,7 @@ impl OpenCADStudio {
             toolbar_drag: None,
             cadmini_first_run_done: false,
             basemap: crate::gis::basemap::Basemap::new(true, "esri_imagery", "", 1.0),
+            gpmb: std::collections::HashMap::new(),
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,
