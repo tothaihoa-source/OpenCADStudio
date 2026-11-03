@@ -49,6 +49,32 @@ impl CadCommand for GisLlCommand {
     }
 }
 
+/// GMAP: open Google Maps at a picked point.
+struct GmapCommand {
+    crs: DrawingCrs,
+}
+
+impl CadCommand for GmapCommand {
+    fn name(&self) -> &'static str {
+        "GMAP"
+    }
+
+    fn prompt(&self) -> String {
+        crate::t!("GMAP  Specify point to open in Google Maps:").into_owned()
+    }
+
+    fn on_point(&mut self, pt: DVec3) -> CmdResult {
+        let (lon, lat) = self.crs.to_wgs84(pt.x, pt.y);
+        CmdResult::Dispatch(format!(
+            "_GMAPOPEN https://www.google.com/maps/search/?api=1&query={lat:.7},{lon:.7}"
+        ))
+    }
+
+    fn on_enter(&mut self) -> CmdResult {
+        CmdResult::Cancel
+    }
+}
+
 /// The drawing's system, if it has one.
 pub(in crate::app) fn drawing_crs(doc: &codec::Document) -> Option<DrawingCrs> {
     doc.summary_info
@@ -287,6 +313,8 @@ impl OpenCADStudio {
         self.tabs[i].dirty = true;
         self.command_line
             .push_output(crate::tf!("GISCRS: {}", system.label()).as_ref());
+        // The background follows the new system.
+        self.basemap.invalidate();
         Task::none()
     }
 
@@ -589,6 +617,106 @@ impl OpenCADStudio {
                     Some(Task::none())
                 }
             }
+            // ── Map background (GISSAT) ──────────────────────────────────
+            "GISSAT" | "SAT" => {
+                let on = match rest.to_ascii_uppercase().as_str() {
+                    "ON" | "1" => true,
+                    "OFF" | "0" => false,
+                    _ => !self.basemap.on,
+                };
+                Some(self.set_basemap_on(i, on))
+            }
+            "GISSOURCE" if rest.is_empty() => {
+                let list: Vec<String> = crate::gis::tiles::sources()
+                    .iter()
+                    .enumerate()
+                    .map(|(n, s)| format!("{} {} [{}]", n + 1, s.name, s.key))
+                    .collect();
+                self.command_line.push_output(&list.join("  ·  "));
+                let c = FreeTextValuePromptCommand::new(
+                    "_GISSOURCESET",
+                    "GISSOURCE  Background source (number or key):",
+                );
+                self.command_line.push_info(&c.prompt());
+                self.tabs[i].active_cmd = Some(Box::new(c));
+                Some(Task::none())
+            }
+            "GISSOURCE" | "_GISSOURCESET" => {
+                let all = crate::gis::tiles::sources();
+                let key = rest
+                    .parse::<usize>()
+                    .ok()
+                    .and_then(|n| all.get(n.wrapping_sub(1)))
+                    .or_else(|| all.iter().find(|s| s.key.eq_ignore_ascii_case(rest)))
+                    .map(|s| s.key.to_string())
+                    .or_else(|| rest.eq_ignore_ascii_case("custom").then(|| "custom".to_string()));
+                match key {
+                    Some(key) => Some(self.set_basemap_source(i, &key)),
+                    None => {
+                        if !rest.is_empty() {
+                            self.command_line.push_error(
+                                crate::tf!("GISSOURCE: no source \"{rest}\".").as_ref(),
+                            );
+                        }
+                        Some(Task::none())
+                    }
+                }
+            }
+            "GISURL" if rest.is_empty() => {
+                let c = FreeTextValuePromptCommand::new(
+                    "_GISURLSET",
+                    "GISURL  Tile URL with {z} {x} {y}:",
+                );
+                self.command_line.push_info(&c.prompt());
+                self.tabs[i].active_cmd = Some(Box::new(c));
+                Some(Task::none())
+            }
+            "GISURL" | "_GISURLSET" => {
+                if !rest.contains("{z}") || !rest.contains("{x}") || !rest.contains("{y}") {
+                    self.command_line.push_error(
+                        crate::t!("GISURL: the address needs {z}, {x} and {y}.").as_ref(),
+                    );
+                    return Some(Task::none());
+                }
+                self.basemap.custom_url = rest.to_string();
+                Some(self.set_basemap_source(i, "custom"))
+            }
+            "GISOPACITY" if rest.is_empty() => {
+                let c = FreeTextValuePromptCommand::new(
+                    "_GISOPACITYSET",
+                    "GISOPACITY  Background strength 10–100 %:",
+                );
+                self.command_line.push_info(&c.prompt());
+                self.tabs[i].active_cmd = Some(Box::new(c));
+                Some(Task::none())
+            }
+            "GISOPACITY" | "_GISOPACITYSET" => {
+                match rest.trim_end_matches('%').trim().parse::<f32>() {
+                    Ok(v) if (10.0..=100.0).contains(&v) => {
+                        self.basemap.opacity = v / 100.0;
+                        self.basemap.invalidate();
+                        self.persist_settings_if_changed();
+                        self.command_line
+                            .push_output(&format!("GISOPACITY: {v:.0}%"));
+                        Some(self.basemap_tick())
+                    }
+                    _ => {
+                        self.command_line
+                            .push_error(crate::t!("GISOPACITY: enter 10 to 100.").as_ref());
+                        Some(Task::none())
+                    }
+                }
+            }
+            "GMAP" => {
+                let Some(system) = self.gis_require_crs(i) else {
+                    return Some(Task::none());
+                };
+                let c = GmapCommand { crs: system };
+                self.command_line.push_info(&c.prompt());
+                self.tabs[i].active_cmd = Some(Box::new(c));
+                Some(Task::none())
+            }
+            "_GMAPOPEN" => Some(crate::sys::open_url(rest, self.main_window)),
             _ => None,
         }
     }
@@ -601,7 +729,10 @@ async fn pick_gis(title: String, filters: Vec<(String, Vec<String>)>) -> Option<
 }
 
 inventory::submit!(crate::command::CommandRegistration {
-    names: &["GISCRS", "GISLL", "GISGOTO", "GISIMPORT", "GISEXPORT"],
+    names: &[
+        "GISCRS", "GISLL", "GISGOTO", "GISIMPORT", "GISEXPORT", "GISSAT", "SAT", "GISSOURCE",
+        "GISURL", "GISOPACITY", "GMAP",
+    ],
 });
 
 #[cfg(test)]
@@ -638,4 +769,112 @@ mod tests {
         assert!(ents.iter().all(|e| e.common().layer == "Ranh giới"));
         assert!(matches!(&ents[1], EntityType::Text(t) if t.value == "Lô A"));
     }
+}
+
+// ── Map background ──────────────────────────────────────────────────────────
+
+impl OpenCADStudio {
+    fn set_basemap_on(&mut self, i: usize, on: bool) -> Task<Message> {
+        if on && drawing_crs(&self.tabs[i].scene.document).is_none() {
+            self.command_line.push_error(
+                crate::t!("GISSAT: set the drawing's coordinate system first (GISCRS).").as_ref(),
+            );
+            self.basemap.on = true;
+            self.persist_settings_if_changed();
+            return self.dispatch_gis("GISCRS", i).unwrap_or_else(Task::none);
+        }
+        self.basemap.on = on;
+        self.basemap.invalidate();
+        self.persist_settings_if_changed();
+        if on {
+            let source = self.basemap.source();
+            self.command_line.push_output(&format!(
+                "GISSAT: {} — {}",
+                source.name, source.attribution
+            ));
+        } else {
+            for tab in &mut self.tabs {
+                if tab.scene.basemap_images.take().is_some() {
+                    tab.scene.camera_generation += 1;
+                }
+            }
+            self.command_line.push_output("GISSAT: off");
+        }
+        self.basemap_tick()
+    }
+
+    fn set_basemap_source(&mut self, i: usize, key: &str) -> Task<Message> {
+        self.basemap.source_key = key.to_string();
+        self.basemap.reset();
+        self.persist_settings_if_changed();
+        let source = self.basemap.source();
+        self.command_line.push_output(&format!(
+            "GISSOURCE: {} {}",
+            source.name,
+            if source.attribution.is_empty() { String::new() } else { format!("— {}", source.attribution) }
+        ));
+        if self.basemap.on {
+            self.basemap_tick()
+        } else {
+            self.set_basemap_on(i, true)
+        }
+    }
+
+    /// Bring the active drawing's map background in step with its view, and
+    /// start downloading the tiles it lacks.
+    pub(in crate::app) fn basemap_tick(&mut self) -> Task<Message> {
+        let i = self.active_tab;
+        let Some(tab) = self.tabs.get_mut(i) else {
+            return Task::none();
+        };
+        let crs = drawing_crs(&tab.scene.document);
+        let show = self.basemap.on
+            && !self.workspace.is_3d()
+            && !tab.is_start
+            && tab.scene.current_layout == "Model"
+            && crs.is_some();
+        let Some(crs) = crs.filter(|_| show) else {
+            if tab.scene.basemap_images.take().is_some() {
+                tab.scene.camera_generation += 1;
+            }
+            return Task::none();
+        };
+        let (center, size, px) = tab.scene.view_window();
+        if !self.basemap.needs_build(center, size, px) && tab.scene.basemap_images.is_some() {
+            return Task::none();
+        }
+        let (models, missing) = self.basemap.build(&crs, center, size, px);
+        tab.scene.basemap_images = Some(std::sync::Arc::new(models));
+        tab.scene.camera_generation += 1;
+        fetch_tiles(self.basemap.source(), missing)
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn fetch_tiles(
+    source: crate::gis::tiles::TileSource,
+    keys: Vec<crate::gis::tiles::TileKey>,
+) -> Task<Message> {
+    Task::batch(keys.into_iter().map(|key| {
+        let source = source.clone();
+        let source_key = source.key.to_string();
+        Task::perform(
+            async move {
+                let (tx, rx) = iced::futures::channel::oneshot::channel();
+                std::thread::spawn(move || {
+                    let _ = tx.send(crate::gis::tiles::load(&source, key));
+                });
+                rx.await.ok().flatten()
+            },
+            move |tile| Message::BasemapTile(source_key.clone(), key, tile),
+        )
+    }))
+}
+
+#[cfg(target_arch = "wasm32")]
+fn fetch_tiles(
+    _source: crate::gis::tiles::TileSource,
+    _keys: Vec<crate::gis::tiles::TileKey>,
+) -> Task<Message> {
+    Task::none()
 }

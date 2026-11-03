@@ -659,12 +659,39 @@ const MENUS: &[(&str, &[Entry])] = &[
     (
         "GIS",
         &[
-            Cmd("Coordinate System...", "GISCRS", ""),
+            Cmd("Coordinate System (VN-2000)...", "GISCRS", ""),
+            Sep,
+            Cmd("Satellite Background On/Off", "GISSAT", ""),
+            Sub(
+                "Background Source",
+                &[
+                    Cmd("Esri World Imagery (satellite)", "GISSOURCE esri_imagery", ""),
+                    Cmd("Esri World Street Map", "GISSOURCE esri_street", ""),
+                    Cmd("OpenStreetMap", "GISSOURCE osm", ""),
+                    Cmd("Google Hybrid (satellite + roads, names)", "GISSOURCE google_hybrid", ""),
+                    Cmd("Google Satellite", "GISSOURCE google_sat", ""),
+                    Cmd("Google Terrain", "GISSOURCE google_terrain", ""),
+                    Cmd("OpenTopoMap (terrain, contours)", "GISSOURCE opentopo", ""),
+                    Sep,
+                    Cmd("Custom Tile URL...", "GISURL", ""),
+                ],
+            ),
+            Sub(
+                "Background Strength",
+                &[
+                    Cmd("100%", "GISOPACITY 100", ""),
+                    Cmd("75%", "GISOPACITY 75", ""),
+                    Cmd("50%", "GISOPACITY 50", ""),
+                    Cmd("30%", "GISOPACITY 30", ""),
+                ],
+            ),
+            Sep,
+            Cmd("Import GIS Data (KML/KMZ/SHP/GeoJSON)...", "GISIMPORT", ""),
+            Cmd("Export GIS Data (KML/KMZ/SHP/GeoJSON)...", "GISEXPORT", ""),
+            Sep,
             Cmd("Point Coordinates (Lat/Long)", "GISLL", ""),
             Cmd("Go to Lat/Long", "GISGOTO", ""),
-            Sep,
-            Cmd("Import GIS Data...", "GISIMPORT", ""),
-            Cmd("Export GIS Data...", "GISEXPORT", ""),
+            Cmd("Open Google Maps at Point", "GMAP", ""),
         ],
     ),
     (

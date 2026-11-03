@@ -894,6 +894,8 @@ pub(super) struct OpenCADStudio {
     toolbar_layout: Vec<crate::ui::classic_toolbar::BarState>,
     toolbar_drag: Option<crate::ui::classic_toolbar::Drag>,
     cadmini_first_run_done: bool,
+    /// CadMini Studio: the satellite / map background (GISSAT).
+    basemap: crate::gis::basemap::Basemap,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -3545,6 +3547,10 @@ pub enum Message {
     MenuCommand(String),
     /// CadMini Studio: drag or resize a classic toolbar.
     ClassicToolbar(crate::ui::classic_toolbar::ToolbarMsg),
+    /// CadMini Studio: look whether the map background needs new tiles.
+    BasemapTick,
+    /// CadMini Studio: a background tile arrived (source key, tile, image).
+    BasemapTile(String, crate::gis::tiles::TileKey, Option<crate::gis::tiles::Tile>),
     /// The Quick Access Toolbar's lists and menus.
     RibbonQat(crate::ui::ribbon::QatMsg),
     /// The minimize button and the minimized ribbon's popups.
@@ -5697,6 +5703,7 @@ impl OpenCADStudio {
             toolbar_layout: crate::ui::classic_toolbar::default_layout(),
             toolbar_drag: None,
             cadmini_first_run_done: false,
+            basemap: crate::gis::basemap::Basemap::new(true, "esri_imagery", "", 1.0),
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,

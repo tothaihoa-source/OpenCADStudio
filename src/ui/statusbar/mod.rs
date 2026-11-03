@@ -100,6 +100,8 @@ pub struct StatusBarReadout {
     pub coords_mode: i16,
     pub last_point: Option<glam::DVec3>,
     pub picking: bool,
+    /// CadMini Studio: the cursor's latitude / longitude (VN-2000 drawings).
+    pub latlon: Option<String>,
 }
 
 #[derive(Clone, Default)]
@@ -180,6 +182,7 @@ impl StatusBar {
             coords_mode,
             last_point,
             picking,
+            latlon,
         } = readout;
         let StatusMenuData {
             layout_names,
@@ -307,6 +310,10 @@ impl StatusBar {
         }
         if vis(StatusPill::Coords) {
             let coords_label = format_coords(cursor_world, last_point, coords_mode, picking);
+            let coords_label = match latlon {
+                Some(ll) => format!("{coords_label}   {ll}"),
+                None => coords_label,
+            };
             pills.push(
                 tip(
                     action_pill(&coords_label, Message::CycleCoordsMode),

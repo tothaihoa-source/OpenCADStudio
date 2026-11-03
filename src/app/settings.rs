@@ -790,6 +790,11 @@ pub struct UserSettings {
     /// CadMini Studio: its first-run layout (left dock edge auto-hiding,
     /// leaving the width to the drawing) has been applied.
     pub cadmini_first_run_done: bool,
+    /// CadMini Studio: the map background (GISSAT, GISSOURCE, GISURL, GISOPACITY).
+    pub basemap_on: bool,
+    pub basemap_source: String,
+    pub basemap_custom_url: String,
+    pub basemap_opacity: f32,
     /// CadMini Studio: HATCHFADE / LINEFADE, percent.
     pub hatch_fade: u32,
     pub line_fade: u32,
@@ -1345,6 +1350,10 @@ impl Default for UserSettings {
             ui_style: crate::app::workspace::UiStyle::default(),
             toolbar_layout: Vec::new(),
             cadmini_first_run_done: false,
+            basemap_on: true,
+            basemap_source: "esri_imagery".to_string(),
+            basemap_custom_url: String::new(),
+            basemap_opacity: 1.0,
             hatch_fade: 0,
             line_fade: 0,
             options_tab: crate::ui::window::options::OptionsTab::General,

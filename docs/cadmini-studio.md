@@ -51,6 +51,22 @@ bản vẽ của nhau.
 | `GISIMPORT` | Import GIS Data… | Nhập GeoJSON, KML/KMZ, Shapefile. Toạ độ WGS84 được đổi sang VN-2000; Shapefile có `.prj` dạng chiếu (hoặc số lớn) giữ nguyên toạ độ. Mỗi lớp/thư mục KML → một layer; thuộc tính `name` → chữ ghi chú |
 | `GISEXPORT` | Export GIS Data… | Xuất đối tượng đang chọn (hoặc cả Model) ra GeoJSON/KML/KMZ (WGS84) hoặc Shapefile VN-2000 (`_point`, `_line`, `_polygon` kèm `.prj`, `.cpg` UTF-8) |
 
+#### Nền bản đồ vệ tinh (như CadMini)
+
+Bản vẽ đã có hệ toạ độ thì **nền vệ tinh tự hiện** dưới bản vẽ (không gian 2D, tab Model). Ảnh được
+tải theo mức zoom của màn hình, lưu đệm trên đĩa (thư mục cấu hình `tiles/`), mỗi ô ảnh được nắn
+sang VN-2000 (lưới 8×8) nên khớp toạ độ bản vẽ; trong khi ô nét đang tải, ảnh mức thấp hơn hiện tạm.
+
+| Lệnh | Menu GIS | Việc làm |
+|---|---|---|
+| `GISSAT` (`SAT`) `[ON/OFF]` | Satellite Background On/Off | Bật/tắt nền (không tham số: đổi qua lại); lựa chọn được nhớ |
+| `GISSOURCE [số/khoá]` | Background Source › … | Esri vệ tinh, Esri đường phố, OpenStreetMap, Google Hybrid, Google vệ tinh, Google địa hình, OpenTopoMap |
+| `GISURL <url>` | Background Source › Custom Tile URL… | Nguồn tuỳ chỉnh dạng `https://…/{z}/{x}/{y}.png` |
+| `GISOPACITY <10–100>` | Background Strength › 100/75/50/30 % | Độ đậm ảnh nền |
+| `GMAP` | Open Google Maps at Point | Chọn điểm → mở Google Maps tại đó |
+
+Thanh trạng thái hiện kinh độ, vĩ độ tại con trỏ bên cạnh toạ độ X, Y.
+
 Đối tượng xuất được: Point, Line, LWPolyline (đóng → vùng, cung được chia nhỏ), Circle,
 Text/MText (điểm, thuộc tính `name`), Block (điểm chèn, thuộc tính `block`).
 

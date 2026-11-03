@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 mod attdef;
 mod workspace_cmd;
-mod gis_cmd;
+pub(in crate::app) mod gis_cmd;
 mod cadmini_cmd;
 mod attman;
 mod block_cmdline;

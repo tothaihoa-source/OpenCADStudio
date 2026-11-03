@@ -2588,6 +2588,10 @@ pub struct Scene {
     /// Whether entity transparency is honoured on screen. When false the
     /// wire shader forces every line opaque (a uniform toggle, no retessellate).
     pub transparency_display: bool,
+    /// CadMini Studio: the satellite / map background tiles (GISSAT), drawn
+    /// under the model-space drawing.
+    pub basemap_images: Option<Arc<Vec<ImageModel>>>,
+    basemap_combined: std::cell::RefCell<Option<(usize, usize, Arc<Vec<ImageModel>>)>>,
     /// User-adjustable model-space lineweight preview multiplier.
     pub model_lineweight_scale: f32,
     /// Selection filter: entity-type names excluded from interactive picking.
@@ -3274,6 +3278,8 @@ impl Scene {
             edge_color: None,
             selection_effect: true,
             transparency_display: true,
+            basemap_images: None,
+            basemap_combined: std::cell::RefCell::new(None),
             model_lineweight_scale: 1.0,
             selection_filter: HashSet::default(),
             preview_wires: vec![],

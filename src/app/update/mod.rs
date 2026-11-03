@@ -2819,6 +2819,11 @@ impl OpenCADStudio {
                 }
                 Task::batch(tasks)
             }
+            Message::BasemapTick => self.basemap_tick(),
+            Message::BasemapTile(source, key, tile) => {
+                self.basemap.receive(&source, key, tile);
+                self.basemap_tick()
+            }
             Message::ClassicToolbar(msg) => {
                 use crate::ui::classic_toolbar::{drag_to, drop_bar, Drag, ToolbarMsg};
                 match msg {

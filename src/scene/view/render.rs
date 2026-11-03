@@ -5105,7 +5105,7 @@ impl Scene {
         let images = if let Some(images) = paper_images {
             images
         } else {
-            self.images_for_viewport(inst.handle, &vp_frozen)
+            self.with_basemap(self.images_for_viewport(inst.handle, &vp_frozen))
         };
         // The paper sheet shows the layout's own 2-D content (fills, borders,
         // annotation) — never the model's 3-D solids. Those are drawn inside
@@ -5879,4 +5879,26 @@ static DEVICE_SCALE: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32
 /// Device pixels per logical pixel of the drawing viewport.
 pub fn device_scale() -> f32 {
     f32::from_bits(DEVICE_SCALE.load(std::sync::atomic::Ordering::Relaxed))
+}
+
+impl crate::scene::Scene {
+    /// CadMini Studio: the drawing's images with the background tiles first
+    /// (under everything), built again only when either list changes.
+    pub(in crate::scene) fn with_basemap(&self, images: Arc<Vec<ImageModel>>) -> Arc<Vec<ImageModel>> {
+        let Some(basemap) = self.basemap_images.as_ref().filter(|b| !b.is_empty()) else {
+            return images;
+        };
+        let key = (Arc::as_ptr(&images) as usize, Arc::as_ptr(basemap) as usize);
+        if let Some((a, b, combined)) = self.basemap_combined.borrow().as_ref() {
+            if (*a, *b) == key {
+                return Arc::clone(combined);
+            }
+        }
+        let mut all = Vec::with_capacity(basemap.len() + images.len());
+        all.extend(basemap.iter().cloned());
+        all.extend(images.iter().cloned());
+        let combined = Arc::new(all);
+        *self.basemap_combined.borrow_mut() = Some((key.0, key.1, Arc::clone(&combined)));
+        combined
+    }
 }

@@ -814,6 +814,10 @@ impl OpenCADStudio {
             ui_style: self.ui_style,
             toolbar_layout: self.toolbar_layout.clone(),
             cadmini_first_run_done: self.cadmini_first_run_done,
+            basemap_on: self.basemap.on,
+            basemap_source: self.basemap.source_key.clone(),
+            basemap_custom_url: self.basemap.custom_url.clone(),
+            basemap_opacity: self.basemap.opacity,
             hatch_fade: crate::scene::display_fade::hatch_fade(),
             line_fade: crate::scene::display_fade::line_fade(),
             options_tab: self.options_tab,
@@ -990,6 +994,12 @@ impl OpenCADStudio {
         self.ribbon_closed = s.ribbon_closed;
         self.workspace = s.workspace;
         self.ui_style = s.ui_style;
+        self.basemap = crate::gis::basemap::Basemap::new(
+            s.basemap_on,
+            &s.basemap_source,
+            &s.basemap_custom_url,
+            s.basemap_opacity,
+        );
         self.toolbar_layout = crate::ui::classic_toolbar::complete(s.toolbar_layout.clone());
         crate::scene::display_fade::set_hatch_fade(s.hatch_fade);
         crate::scene::display_fade::set_line_fade(s.line_fade);

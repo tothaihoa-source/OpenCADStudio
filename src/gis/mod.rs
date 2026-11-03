@@ -3,6 +3,8 @@
 
 pub mod crs;
 pub mod formats;
+pub mod tiles;
+pub mod basemap;
 
 pub use crs::DrawingCrs;
 pub use formats::{Coords, Feature, Geom};

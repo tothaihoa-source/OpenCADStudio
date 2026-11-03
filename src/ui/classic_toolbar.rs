@@ -52,6 +52,8 @@ const INQUIRY: &[Entry] = &[
 
 const GIS: &[Entry] = &[
     ("GISCRS", "GIS Coordinate System (VN-2000)", "🌐"),
+    ("GISSAT", "Satellite Background On/Off", "🛰"),
+    ("GISSOURCE", "Background Source", "🗺"),
     ("GISLL", "Point Lat/Long", "⌖"),
     ("GISIMPORT", "Import GIS Data", "⇩"),
     ("GISEXPORT", "Export GIS Data", "⇧"),

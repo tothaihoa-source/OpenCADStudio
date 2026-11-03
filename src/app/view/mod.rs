@@ -3021,6 +3021,22 @@ bg={bg_ms:.1}ms n={view_count}"
                             coords_mode,
                             last_point: last_coord,
                             picking,
+                            latlon: (is_model && !self.workspace.is_3d())
+                                .then(|| {
+                                    crate::app::commands::gis_cmd::drawing_crs(&tab.scene.document)
+                                })
+                                .flatten()
+                                .map(|crs| {
+                                    let p = tab.last_cursor_world;
+                                    let (lon, lat) = crs.to_wgs84(p.x, p.y);
+                                    format!(
+                                        "{:.6}°{} {:.6}°{}",
+                                        lat.abs(),
+                                        if lat >= 0.0 { "N" } else { "S" },
+                                        lon.abs(),
+                                        if lon >= 0.0 { "E" } else { "W" }
+                                    )
+                                }),
                         },
                         &self.statusbar_config,
                         status_menu_data,
@@ -3425,6 +3441,12 @@ impl OpenCADStudio {
         } else {
             Subscription::none()
         };
+        // CadMini Studio: keep the map background in step with the view.
+        let basemap_tick = if self.basemap.on && !self.workspace.is_3d() {
+            iced::time::every(std::time::Duration::from_millis(200)).map(|_| Message::BasemapTick)
+        } else {
+            Subscription::none()
+        };
         // Expire the QuickCalc status message ("Copied 870").
         // Open or close a ribbon popup or slide-out after its delay.
         let ribbon_minimize = if self.ribbon.wants_tick() {
@@ -3750,6 +3772,7 @@ impl OpenCADStudio {
             caret_blink,
             quick_calc_flash,
             ribbon_minimize,
+            basemap_tick,
             web_fonts,
             autosave,
             plugin_drain,

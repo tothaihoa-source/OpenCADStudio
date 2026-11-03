@@ -1057,7 +1057,7 @@ impl OpenCADStudio {
             // probing the bare word would toggle them first.
             || [
                 "WSCURRENT", "WORKSPACE", "UISTYLE", "HATCHFADE", "LINEFADE", "GISCRS", "GISGOTO",
-                "GISIMPORT", "GISEXPORT",
+                "GISIMPORT", "GISEXPORT", "GISSAT", "GISSOURCE", "GISURL", "GISOPACITY",
             ]
             .iter()
             .any(|verb| tokens[0].eq_ignore_ascii_case(verb))
