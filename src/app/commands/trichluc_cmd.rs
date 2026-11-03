@@ -283,6 +283,19 @@ fn key_points(e: &EntityType) -> Option<Vec<Xy>> {
     })
 }
 
+/// Whether `q` lies inside the ring (its chords).
+fn inside(ring: &[Vtx], q: Xy) -> bool {
+    let n = ring.len();
+    let mut c = false;
+    for i in 0..n {
+        let (a, b) = (ring[i], ring[(i + 1) % n]);
+        if (a[1] > q[1]) != (b[1] > q[1]) && q[0] < a[0] + (q[1] - a[1]) * (b[0] - a[0]) / (b[1] - a[1]) {
+            c = !c;
+        }
+    }
+    c
+}
+
 // ── Writing ─────────────────────────────────────────────────────────────────
 
 fn entity_of(item: &T::Item) -> EntityType {
@@ -444,6 +457,7 @@ impl OpenCADStudio {
         if p.side() && p.neighbors {
             let [x0, y0, x1, y1] = plan.map_box_at_source();
             let delta = DVec3::new(plan.shift[0], plan.shift[1], 0.0);
+            let own_label = !p.so_thua.is_empty();
             for e in model_entities(&self.tabs[i].scene) {
                 if made.len() > 5000 {
                     break;
@@ -454,6 +468,17 @@ impl OpenCADStudio {
                     continue;
                 }
                 let Some(pts) = key_points(&e) else { continue };
+                // The parcel's own words: the sheet writes its label itself.
+                if own_label && matches!(e, EntityType::Text(_) | EntityType::MText(_)) {
+                    let at = match &e {
+                        EntityType::Text(t) => [t.insertion_point.x, t.insertion_point.y],
+                        EntityType::MText(t) => [t.insertion_point.x, t.insertion_point.y],
+                        _ => unreachable!(),
+                    };
+                    if inside(&ring, at) {
+                        continue;
+                    }
+                }
                 if pts.is_empty() || !pts.iter().all(|q| q[0] >= x0 && q[0] <= x1 && q[1] >= y0 && q[1] <= y1) {
                     continue;
                 }
@@ -814,9 +839,13 @@ mod tests {
         let h = add_ring(&mut app, &[[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 15.0, 0.4], [0.0, 15.0, 0.0]]);
         // A neighbour wholly inside the map frame is copied.
         let mut t = codec::entities::Text::new();
-        t.value = "Thửa bên".into();
+        t.value = "Bên".into();
         t.height = 1.0;
-        t.insertion_point = codec::types::Vector3::new(14.0, 5.0, 0.0);
+        t.insertion_point = codec::types::Vector3::new(21.5, 5.0, 0.0);
+        app.tabs[i].scene.add_entity(EntityType::Text(t.clone()));
+        // The parcel's own words are not copied once it has a number.
+        t.value = "Chủ cũ".into();
+        t.insertion_point = codec::types::Vector3::new(8.0, 5.0, 0.0);
         app.tabs[i].scene.add_entity(EntityType::Text(t.clone()));
         // One whose words run out of the frame stays behind.
         t.value = "Thửa ngoài khung".into();
@@ -831,7 +860,8 @@ mod tests {
         let n = sheet_count(&app);
         assert!(n > 40, "{n}");
         let all = texts(&app);
-        assert!(all.iter().filter(|s| s.as_str() == "Thửa bên").count() == 2, "neighbour copied");
+        assert!(all.iter().filter(|s| s.as_str() == "Bên").count() == 2, "neighbour copied");
+        assert_eq!(all.iter().filter(|s| s.as_str() == "Chủ cũ").count(), 1);
         assert_eq!(all.iter().filter(|s| s.as_str() == "Thửa ngoài khung").count(), 1);
         assert!(all.iter().any(|s| s == "12"));
         // The arc stays an arc in the copy.
