@@ -812,6 +812,8 @@ impl OpenCADStudio {
             ribbon_closed: self.ribbon_closed,
             workspace: self.workspace,
             ui_style: self.ui_style,
+            toolbar_layout: self.toolbar_layout.clone(),
+            cadmini_first_run_done: self.cadmini_first_run_done,
             hatch_fade: crate::scene::display_fade::hatch_fade(),
             line_fade: crate::scene::display_fade::line_fade(),
             options_tab: self.options_tab,
@@ -988,6 +990,7 @@ impl OpenCADStudio {
         self.ribbon_closed = s.ribbon_closed;
         self.workspace = s.workspace;
         self.ui_style = s.ui_style;
+        self.toolbar_layout = crate::ui::classic_toolbar::complete(s.toolbar_layout.clone());
         crate::scene::display_fade::set_hatch_fade(s.hatch_fade);
         crate::scene::display_fade::set_line_fade(s.line_fade);
         self.apply_workspace_chrome();
@@ -1562,6 +1565,14 @@ impl OpenCADStudio {
         let mut dock = cfg.dock;
         dock.ensure_settings();
         self.dock = dock;
+        // CadMini Studio's first run: the left edge (Properties) starts as
+        // its icon strip, leaving the width to the drawing. Once only, so a
+        // pinned edge stays pinned. (The inherited tests keep the upstream
+        // layout.)
+        if !cfg.settings.cadmini_first_run_done && !cfg!(test) {
+            self.dock.auto_hide.0 = true;
+        }
+        self.cadmini_first_run_done = true;
         self.show_graphic_attributes = cfg.show_graphic_attributes;
         self.graphic_attributes.fill_on_current_layer = cfg.graphic_fills_on_current_layer;
         if self.show_graphic_attributes {
@@ -3768,7 +3779,7 @@ impl OpenCADStudio {
                     .map(|name| name.to_string_lossy().into_owned())
                     .unwrap_or_else(|| outcome.path.display().to_string());
                 self.command_line.push_error_once(
-                    crate::tf!("Save stopped: \"{file_name}\" changed outside Open CAD Studio.")
+                    crate::tf!("Save stopped: \"{file_name}\" changed outside CadMini Studio.")
                         .as_ref(),
                 );
                 self.pending_external_change = Some(crate::app::PendingExternalChange {

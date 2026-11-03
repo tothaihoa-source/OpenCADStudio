@@ -39,7 +39,7 @@ pub(crate) fn view(prefs: GraphicsPrefs, active: ActiveGpu) -> Element<'static, 
         text(crate::t!("Graphics")).size(15),
         Space::new().height(6),
         text(crate::t!(
-            "Saved immediately. Changes take effect the next time Open CAD Studio starts."
+            "Saved immediately. Changes take effect the next time CadMini Studio starts."
         ))
         .size(11)
         .width(Fill),

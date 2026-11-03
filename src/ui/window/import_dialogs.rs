@@ -450,7 +450,7 @@ pub fn view_import_file<'a>(
                     msg(ImportDialogMsg::OnlySupported(false))
                 ),
                 chip(
-                    t!("Only what OCS can open").into_owned(),
+                    t!("Only what CadMini Studio can open").into_owned(),
                     state.only_supported,
                     msg(ImportDialogMsg::OnlySupported(true))
                 ),

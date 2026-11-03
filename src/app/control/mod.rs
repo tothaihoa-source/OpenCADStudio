@@ -677,7 +677,7 @@ impl OpenCADStudio {
         );
         if !query && !self.control.enabled {
             return (
-                failure("disabled", "Automation is stopped. Enable it in OCS."),
+                failure("disabled", "Automation is stopped. Enable it in CadMini Studio."),
                 Task::none(),
             );
         }

@@ -18,7 +18,7 @@ use std::sync::OnceLock;
 
 use clap::Parser;
 
-/// Open CAD Studio command-line options.
+/// CadMini Studio command-line options.
 #[derive(Parser, Debug, Default)]
 #[command(
     name = "OpenCADStudio",
@@ -30,7 +30,7 @@ use clap::Parser;
         "\nprofile: ", env!("OCS_BUILD_PROFILE"),
         "\nfeatures: ", env!("OCS_BUILD_FEATURES"),
     ),
-    about = crate::t!("CadMini Studio — 2D drafting with GIS and 3D modeling (based on Open CAD Studio)").into_owned(),
+    about = crate::t!("CadMini Studio — 2D drafting with GIS and 3D modeling").into_owned(),
     long_about = None,
 )]
 pub struct Cli {

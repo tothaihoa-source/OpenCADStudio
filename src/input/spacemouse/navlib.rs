@@ -1,5 +1,5 @@
 //! Windows NavLib adapter. Loads the user's installed 3DxWare runtime; neither
-//! SDK binaries nor SDK source files are bundled with Open CAD Studio.
+//! SDK binaries nor SDK source files are bundled with CadMini Studio.
 //!
 //! ABI reference: 3DxWare SDK v4 navlib.h, navlib_types.h, siappcmd_types.h.
 //! All callbacks own only a mutex-protected snapshot. NlClose runs before their
@@ -348,7 +348,7 @@ impl Commands {
     fn new(actions: &[Action]) -> Self {
         let mut strings = vec![
             CString::new("Default").unwrap(),
-            CString::new("Open CAD Studio").unwrap(),
+            CString::new("CadMini Studio").unwrap(),
             CString::new("").unwrap(),
         ];
         let mut nodes = vec![Node {
@@ -493,7 +493,7 @@ impl Connection {
         let result = unsafe {
             (api.create)(
                 &mut handle,
-                c"Open CAD Studio".as_ptr(),
+                c"CadMini Studio".as_ptr(),
                 accessors.as_ptr(),
                 accessors.len(),
                 &options,

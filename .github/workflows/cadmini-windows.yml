@@ -38,7 +38,7 @@ jobs:
 
       - name: Test GIS and workspace code
         shell: bash
-        run: 'cargo test --locked --release --lib -- gis:: workspace menu_bar cadmini_cmd display_fade'
+        run: 'cargo test --locked --release --lib -- gis:: workspace menu_bar cadmini_cmd display_fade classic_toolbar'
 
       - name: Build
         shell: bash
@@ -73,4 +73,4 @@ jobs:
           gh release create "${{ steps.pkg.outputs.tag }}" "${{ steps.pkg.outputs.zip }}" \
             --target "$GITHUB_SHA" \
             --title "CadMini Studio ${{ steps.pkg.outputs.tag }}" \
-            --notes "CadMini Studio, based on Open CAD Studio (GPL-3.0). Separate 2D (drafting + GIS) and 3D workspaces, classic menus. Unsigned build: Windows SmartScreen may warn on first start."
+            --notes "CadMini Studio: 2D (vẽ + GIS VN-2000) và 3D tách biệt, giao diện Cổ điển/Ribbon. Bản chưa ký số: Windows SmartScreen có thể cảnh báo lần đầu. Một phần mã nguồn lấy từ Open CAD Studio (GPL-3.0)."

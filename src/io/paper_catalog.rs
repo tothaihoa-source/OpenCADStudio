@@ -524,7 +524,7 @@ pub fn default_paper() -> &'static PaperSize {
         .expect("catalogue always carries ISO A4")
 }
 
-/// Short names a system printer driver, an older Open CAD Studio config or a
+/// Short names a system printer driver, an older CadMini Studio config or a
 /// user at the command line may spell a sheet with, mapped onto the canonical
 /// sheet. `Ledger` is the landscape name of Tabloid; the sheet is the same.
 const ALIASES: &[(&str, &str)] = &[

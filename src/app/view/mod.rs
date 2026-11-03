@@ -2499,15 +2499,12 @@ bg={bg_ms:.1}ms n={view_count}"
                 && !tab.is_start
                 && !self.clean_screen;
             if classic {
-                viewport_stack = viewport_stack
-                    .push(crate::ui::classic_toolbar::left_overlay(self.workspace.is_3d()));
-                if selection_tools.is_none()
-                    && !is_paper
-                    && tab.refedit_session.is_none()
-                    && tab.active_block_edit.is_none()
-                {
-                    viewport_stack =
-                        viewport_stack.push(crate::ui::classic_toolbar::right_overlay(self.workspace.is_3d()));
+                for bar in crate::ui::classic_toolbar::overlays(
+                    &self.toolbar_layout,
+                    self.workspace.is_3d(),
+                    self.toolbar_drag.is_some(),
+                ) {
+                    viewport_stack = viewport_stack.push(bar);
                 }
             }
             if let Some(tb) = selection_tools {
@@ -2890,14 +2887,19 @@ bg={bg_ms:.1}ms n={view_count}"
                         self.tabs[self.active_tab].history.redo_stack.len(),
                         self.show_block_palette,
                         self.block_visibility_context(),
+                        // CadMini Studio: the docked classic toolbars, on the
+                        // Quick Access row.
+                        (self.ui_style == crate::app::workspace::UiStyle::Classic
+                            && !self.tabs[self.active_tab].is_start)
+                            .then(|| {
+                                crate::ui::classic_toolbar::top_bar(
+                                    &self.toolbar_layout,
+                                    self.workspace.is_3d(),
+                                    self.toolbar_drag.is_some(),
+                                )
+                            }),
                     ),
                 );
-                // CadMini Studio: the classic toolbar row under the menus.
-                if self.ui_style == crate::app::workspace::UiStyle::Classic
-                    && !self.tabs[self.active_tab].is_start
-                {
-                    col = col.push(crate::ui::classic_toolbar::top_bar(self.workspace.is_3d()));
-                }
             }
             // Split the `chrome` bucket so live `view-detail` traces show
             // ribbon vs status-bar construction separately (both gated on
@@ -3858,6 +3860,9 @@ impl OpenCADStudio {
     }
 }
 
+/// CadMini Studio: low drawing tabs, to leave room for the drawing.
+const DOC_TAB_H: f32 = 20.0;
+
 pub(super) fn doc_tab_bar<'a>(
     tabs: &'a [DocumentTab],
     active_tab: usize,
@@ -3880,19 +3885,19 @@ pub(super) fn doc_tab_bar<'a>(
         let title_inner: Element<'_, Message> = if tab.dirty {
             row![
                 crate::ui::icons::themed_warning(crate::ui::icons::DIRTY_DOT, 14.0),
-                text(name).size(12),
+                text(name).size(11),
             ]
             .spacing(5)
             .align_y(iced::Center)
             .into()
         } else {
-            text(name).size(12).into()
+            text(name).size(11).into()
         };
 
         let title_btn = button(title_inner)
             .on_press(Message::TabSwitch(idx))
             .height(Fill)
-            .padding([5, 14])
+            .padding([1, 10])
             .style(move |theme: &Theme, _status| {
                 let palette = theme.palette();
                 button::Style {
@@ -3922,7 +3927,7 @@ pub(super) fn doc_tab_bar<'a>(
             let close_btn = button(text("×").size(12))
                 .on_press(Message::TabClose(tab.id))
                 .height(Fill)
-                .padding([5, 9])
+                .padding([1, 6])
                 .style(move |theme: &Theme, status| {
                     let palette = theme.palette();
                     button::Style {
@@ -3955,7 +3960,7 @@ pub(super) fn doc_tab_bar<'a>(
         };
 
         let tab_container = container(row_inner)
-            .height(iced::Length::Fixed(28.0))
+            .height(iced::Length::Fixed(DOC_TAB_H))
             .style(move |theme: &Theme| {
                 let palette = theme.palette();
                 let background = if is_active {
@@ -3990,7 +3995,7 @@ pub(super) fn doc_tab_bar<'a>(
                     tab_container,
                     container(text(path.to_string_lossy().into_owned()).size(11))
                         .style(container::bordered_box)
-                        .padding([4, 8]),
+                        .padding([0, 8]),
                     iced::widget::tooltip::Position::Bottom,
                 )
                 .gap(4)
@@ -4014,10 +4019,10 @@ pub(super) fn doc_tab_bar<'a>(
         );
     }
 
-    let new_btn = button(text("+").size(14))
+    let new_btn = button(text("+").size(12))
         .on_press(Message::TabNew)
-        .height(iced::Length::Fixed(28.0))
-        .padding([4, 8])
+        .height(iced::Length::Fixed(DOC_TAB_H))
+        .padding([0, 8])
         .style(|theme: &Theme, status| {
             let palette = theme.palette();
             let hovered = matches!(status, button::Status::Hovered | button::Status::Pressed);
@@ -4066,7 +4071,7 @@ pub(super) fn doc_tab_bar<'a>(
         ..Default::default()
     })
     .width(Fill)
-    .padding([2, 2])
+    .padding([1, 2])
     .into()
 }
 
@@ -4209,6 +4214,7 @@ fn start_page_content<'a>(
     };
 
     // Donate — the prominent call-to-action, using the theme's danger role.
+    #[allow(unused_variables)]
     let donate_btn = {
         button(
             row![
@@ -4277,7 +4283,6 @@ fn start_page_content<'a>(
             }
         },
         outline_btn(crate::tr!("start", "open-file"), Message::OpenFile).into(),
-        donate_btn.into(),
     ])
     .spacing_x(12.0)
     .row_h(48.0)
@@ -4299,7 +4304,7 @@ fn start_page_content<'a>(
         .push(outline_btn(crate::tr!("action", "plugins"), Message::PluginManagerOpen).into());
     // The web build is already in the browser, so only the desktop offers a
     // link to the web version.
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(any())]
     {
         // Filled with the active theme's primary colour.
         secondary_items.push(
@@ -4317,7 +4322,7 @@ fn start_page_content<'a>(
     secondary_items.push(
         button(text(crate::t!("OCS Desktop")).size(14))
             .on_press(Message::OpenUrl(
-                "https://github.com/HakanSeven12/OpenCADStudio/releases/latest".to_string(),
+                crate::brand::RELEASES_LATEST.to_string(),
             ))
             .padding([10, 22])
             .style(|theme: &Theme, status| start_action_shape(button::primary(theme, status)))
@@ -4328,59 +4333,6 @@ fn start_page_content<'a>(
         .row_h(44.0)
         .report_natural_width(action_width_out.clone());
 
-    let reddit_btn = button(
-        row![
-            iced::widget::svg(iced::widget::svg::Handle::from_memory(include_bytes!(
-                "../../../assets/icons/reddit.svg"
-            )))
-            .width(20)
-            .height(20),
-            text("r/OpenCADStudio").size(14),
-        ]
-        .spacing(7)
-        .align_y(iced::Center),
-    )
-    .on_press(Message::OpenUrl(
-        "https://www.reddit.com/r/OpenCADStudio/".to_string(),
-    ))
-    .padding([10, 22])
-    .style(|theme: &Theme, status| {
-        let palette = theme.palette();
-        let pair = match status {
-            button::Status::Hovered => palette.background.strong,
-            _ => palette.background.weak,
-        };
-        start_action_shape(button::Style {
-            background: Some(Background::Color(pair.color)),
-            text_color: pair.text,
-            border: Border {
-                color: Color::from_rgb8(255, 69, 0),
-                width: 1.0,
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-    });
-
-    let sponsors = column![
-        text(crate::tr!("start", "sponsors")).size(15),
-        mouse_area(
-            container(
-                iced::widget::svg(iced::widget::svg::Handle::from_memory(include_bytes!(
-                    "../../../assets/sponsors/openaec-logo-dark-on-light.svg"
-                )))
-                .width(Fill)
-                .height(iced::Length::Fixed(120.0))
-                .content_fit(iced::ContentFit::Contain),
-            )
-            .width(Fill.max(300.0)),
-        )
-        .interaction(iced::mouse::Interaction::Pointer)
-        .on_press(Message::OpenUrl("https://open-aec.com/".to_string())),
-    ]
-    .spacing(10)
-    .align_x(iced::alignment::Horizontal::Center)
-    .width(Fill);
 
     let content = column![
         Space::new().height(iced::Length::Fixed(28.0)),
@@ -4390,9 +4342,13 @@ fn start_page_content<'a>(
         Space::new().height(iced::Length::Fixed(10.0)),
         container(secondary_row).center_x(Fill),
         Space::new().height(iced::Length::Fixed(10.0)),
-        container(reddit_btn).center_x(Fill),
         Space::new().height(iced::Length::Fixed(20.0)),
-        sponsors,
+        container(
+            text(crate::brand::CREDIT)
+                .size(11)
+                .style(start_muted_style),
+        )
+        .center_x(Fill),
         Space::new().height(iced::Length::Fixed(52.0)),
     ]
     .spacing(0)
@@ -4417,7 +4373,9 @@ fn start_page_content<'a>(
     let welcome_wide_min = measured_action_w.max(360.0);
     let avail = (avail_w - 16.0).max(0.0); // minus the page's l/r padding
     let panel_widths = [panel_w; 4];
-    let mut panel_visible = [true, true, true, true];
+    // CadMini Studio: recent drawings and the welcome only (no videos,
+    // discussions or supporters of the upstream project).
+    let mut panel_visible = [true, false, false, false];
     let required_width = |visible: &[bool; 4]| {
         let visible_panels = visible.iter().filter(|&&shown| shown).count();
         welcome_wide_min

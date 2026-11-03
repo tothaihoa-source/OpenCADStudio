@@ -2819,6 +2819,26 @@ impl OpenCADStudio {
                 }
                 Task::batch(tasks)
             }
+            Message::ClassicToolbar(msg) => {
+                use crate::ui::classic_toolbar::{drag_to, drop_bar, Drag, ToolbarMsg};
+                match msg {
+                    ToolbarMsg::Start { id, resize } => {
+                        self.toolbar_drag = Some(Drag { id: id.to_string(), resize, start: None });
+                    }
+                    ToolbarMsg::Move(p) => {
+                        if let Some(drag) = self.toolbar_drag.as_mut() {
+                            drag_to(&mut self.toolbar_layout, drag, p);
+                        }
+                    }
+                    ToolbarMsg::End => {
+                        if let Some(drag) = self.toolbar_drag.take() {
+                            drop_bar(&mut self.toolbar_layout, &drag);
+                            self.persist_settings_if_changed();
+                        }
+                    }
+                }
+                Task::none()
+            }
             Message::MenuCommand(line) => {
                 let sweep = self.sync_active_field_if_any();
                 self.ribbon.close_dropdown();
@@ -11951,7 +11971,7 @@ impl OpenCADStudio {
                 #[cfg(not(target_arch = "wasm32"))]
                 if let Some(error) = &self.plugin_registry_error {
                     return iced::clipboard::write(format!(
-                        "Open CAD Studio v{}\nOS: {}\nArchitecture: {}\nRegistry: {}\nError: {}",
+                        "CadMini Studio v{}\nOS: {}\nArchitecture: {}\nRegistry: {}\nError: {}",
                         env!("OCS_FULL_VERSION"),
                         std::env::consts::OS,
                         std::env::consts::ARCH,

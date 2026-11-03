@@ -106,7 +106,7 @@ pub enum UiStyle {
     /// right, Standard / Dimension on top), as CadMini and AutoCAD 2007.
     #[default]
     Classic,
-    /// The Open CAD Studio ribbon (menus kept above it).
+    /// The CadMini Studio ribbon (menus kept above it).
     Ribbon,
 }
 

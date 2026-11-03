@@ -235,7 +235,7 @@ impl RecoveryReport {
 
     pub fn log_text(&self) -> String {
         let mut lines = Vec::with_capacity(24);
-        lines.push("Open CAD Studio drawing recovery report".to_string());
+        lines.push("CadMini Studio drawing recovery report".to_string());
         lines.push(format!("Report schema: {}", REPORT_SCHEMA_VERSION));
         lines.push(format!("Report ID: {}", self.report_id));
         lines.push(format!("Application version: {}", env!("OCS_APP_VERSION")));

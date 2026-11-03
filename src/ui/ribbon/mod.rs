@@ -1161,6 +1161,7 @@ impl Ribbon {
         redo_count: usize,
         show_block_palette: bool,
         visibility: Option<crate::ui::window::block_visibility::RibbonContext>,
+        classic_strip: Option<Element<'a, Message>>,
     ) -> Element<'a, Message> {
         // ── Quick Access Toolbar, one flow ───────────────────────────────
         // Below the ribbon it has a row of its own, except while the ribbon
@@ -1290,10 +1291,16 @@ impl Ribbon {
         if closed {
             tab_items.clear();
         }
-        let tabs = WrapFlow::new(tab_items)
-            .spacing_x(metrics::TAB_GAP)
-            .min_spacing_x(-6.0)
-            .row_h(TAB_ROW_H);
+        let tabs: Element<'a, Message> = match classic_strip {
+            // CadMini Studio: with the ribbon closed the docked classic
+            // toolbars share the Quick Access row instead of a row of their own.
+            Some(strip) if closed => strip,
+            _ => WrapFlow::new(tab_items)
+                .spacing_x(metrics::TAB_GAP)
+                .min_spacing_x(-6.0)
+                .row_h(TAB_ROW_H)
+                .into(),
+        };
 
         let mut tab_row = row![].spacing(6.0).align_y(iced::Center);
         if menu_row.is_none() {
@@ -1306,7 +1313,7 @@ impl Ribbon {
         }
         tab_row = tab_row.push(
             container(
-                WrapBar::new(lead, tabs.into())
+                WrapBar::new(lead, tabs)
                     .spacing(if qat_below { 0.0 } else { 6.0 })
                     .min_row_h(TAB_ROW_H)
                     .report_height(self.tab_bar_h.clone()),
@@ -2608,7 +2615,7 @@ mod tests {
             ribbon.set_collapse_mode(mode);
             ribbon.collapsed_open =
                 (mode == CollapseMode::Collapsed).then(|| first_panel.to_string());
-            let view = ribbon.view(None, false, false, false, 0, 0, false, None);
+            let view = ribbon.view(None, false, false, false, 0, 0, false, None, None);
             std::hint::black_box(view);
         }
     }
@@ -2632,7 +2639,7 @@ mod tests {
             layout.minimize = minimize;
             ribbon.set_layout(layout.clone());
             for closed in [false, true] {
-                let view = ribbon.view(None, closed, false, false, 3, 1, false, None);
+                let view = ribbon.view(None, closed, false, false, 3, 1, false, None, None);
                 std::hint::black_box(view);
             }
         }

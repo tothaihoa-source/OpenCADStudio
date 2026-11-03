@@ -161,7 +161,7 @@ impl EditLease {
                     .ok()
                     .map(|value| value.trim().to_string())
                     .filter(|value| !value.is_empty())
-                    .unwrap_or_else(|| "another Open CAD Studio session".to_string());
+                    .unwrap_or_else(|| "another CadMini Studio session".to_string());
                 return Err(EditLeaseError::Locked(format!(
                     "Drawing edit lock is held by {owner}."
                 )));
@@ -178,7 +178,7 @@ impl EditLease {
         let _ = sidecar.seek(SeekFrom::Start(0));
         let _ = writeln!(
             sidecar,
-            "Open CAD Studio pid={} path={}",
+            "CadMini Studio pid={} path={}",
             std::process::id(),
             canonical.display()
         );

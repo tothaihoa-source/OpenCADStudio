@@ -12,7 +12,9 @@ impl OpenCADStudio {
         // web host opted in at boot) while control is enabled, the donation
         // prompt is suppressed — a modal would block every automated
         // operation until a client closed it by hand.
-        if self.donation_prompt_version != env!("OCS_APP_VERSION")
+        // CadMini Studio asks for no donation at start-up.
+        if false
+            && self.donation_prompt_version != env!("OCS_APP_VERSION")
             && !(self.control.enabled && self.control.automation_seen)
         {
             self.pending_startup_modals
@@ -200,72 +202,13 @@ mod tests {
     }
 
     #[test]
-    fn donation_prompt_persists_once_per_version() {
-        let mut app = OpenCADStudio::new_for_test();
-        // Older settings have no donation version; headless construction never prompts.
-        app.apply_config(serde_json::from_str::<AppConfig>("{}").unwrap());
-        assert!(app.active_modal.is_none());
-        assert!(app.pending_startup_modals.is_empty());
-        app.default_assoc_prompted = true;
-        app.queue_startup_prompts();
-        assert_eq!(app.active_modal, Some(ModalKind::DonationPrompt));
-        assert!(app.donation_prompt_version.is_empty());
-
-        let _ = app.update(Message::ModalContentResized(iced::Size::new(540.0, 280.0)));
-        let saved = serde_json::to_string(&app.current_config()).unwrap();
-        let _ = app.update(Message::CloseModal);
-        assert!(app.active_modal.is_none());
-
-        let mut restarted = OpenCADStudio::new_for_test();
-        restarted.apply_config(serde_json::from_str(&saved).unwrap());
-        restarted.queue_startup_prompts();
-        assert_eq!(restarted.donation_prompt_version, env!("OCS_APP_VERSION"));
-        assert!(restarted.active_modal.is_none());
-
-        restarted.donation_prompt_version = "previous-release".to_string();
-        restarted.queue_startup_prompts();
-        assert_eq!(restarted.active_modal, Some(ModalKind::DonationPrompt));
-        let _ = restarted.update(Message::CommandEscape);
-        assert!(restarted.active_modal.is_none());
-        assert_eq!(restarted.donation_prompt_version, env!("OCS_APP_VERSION"));
-        let _ = restarted.update(Message::Noop);
-        assert!(restarted.active_modal.is_none());
-    }
-
-    #[test]
-    fn automation_sessions_skip_the_donation_prompt() {
-        // First control contact drops a still-queued donation prompt and
-        // stops later queueing while control stays enabled (#1349).
+    fn cadmini_studio_never_asks_for_a_donation() {
         let mut app = OpenCADStudio::new_for_test();
         app.default_assoc_prompted = true;
-        app.queue_startup_prompts();
-        assert_eq!(app.active_modal, Some(ModalKind::DonationPrompt));
-        let _ = app.update(Message::CloseModal);
         app.donation_prompt_version = "previous-release".to_string();
-        app.pending_startup_modals
-            .push_back(ModalKind::DonationPrompt);
-        let _ = app.control_request(serde_json::json!({"op":"state"}));
-        assert!(app.pending_startup_modals.is_empty());
         app.queue_startup_prompts();
         assert_ne!(app.active_modal, Some(ModalKind::DonationPrompt));
-
-        // A still-queued (not yet shown) prompt is dropped on first contact.
-        let mut queued = OpenCADStudio::new_for_test();
-        queued.default_assoc_prompted = true;
-        queued.donation_prompt_version = "previous-release".to_string();
-        queued
-            .pending_startup_modals
-            .push_back(ModalKind::DonationPrompt);
-        let _ = queued.control_request(serde_json::json!({"op":"state"}));
-        queued.queue_startup_prompts();
-        assert_ne!(queued.active_modal, Some(ModalKind::DonationPrompt));
-
-        // A prompt already on screen is left for its reader; clients close
-        // it themselves, and a session with no control traffic still prompts.
-        let mut human = OpenCADStudio::new_for_test();
-        human.default_assoc_prompted = true;
-        human.queue_startup_prompts();
-        assert_eq!(human.active_modal, Some(ModalKind::DonationPrompt));
+        assert!(!app.pending_startup_modals.contains(&ModalKind::DonationPrompt));
     }
 
     #[test]
@@ -281,17 +224,8 @@ mod tests {
             },
         )));
         assert_eq!(app.active_modal, Some(ModalKind::AssocPrompt));
+        // CadMini Studio: no donation prompt follows; the update notice does.
         let _ = app.update(Message::AssocPromptNo);
-        assert_eq!(app.active_modal, Some(ModalKind::DonationPrompt));
-
-        // A file-recovery dialog may interrupt startup before the first frame.
-        app.active_modal = Some(ModalKind::Recovery);
-        let _ = app.update(Message::CloseModal);
-        assert_eq!(app.active_modal, Some(ModalKind::DonationPrompt));
-        assert!(app.donation_prompt_version.is_empty());
-        let _ = app.update(Message::ModalContentResized(iced::Size::new(540.0, 280.0)));
-        assert_eq!(app.donation_prompt_version, env!("OCS_APP_VERSION"));
-        let _ = app.update(Message::CloseModal);
         assert_eq!(app.active_modal, Some(ModalKind::UpdateNotice));
         let _ = app.update(Message::UpdateNoticeClose);
         assert!(app.active_modal.is_none());

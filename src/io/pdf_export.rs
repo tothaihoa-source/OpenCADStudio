@@ -434,7 +434,7 @@ pub(crate) fn render_pdf_bytes(
     pages: &[PdfPageInput],
     plot_style: Option<&PlotStyleTable>,
 ) -> Result<Vec<u8>, String> {
-    let mut doc = PdfDocument::new("Open CAD Studio Export");
+    let mut doc = PdfDocument::new("CadMini Studio Export");
     // Subset-embed one TrueType font per used system family before any page
     // references them (fonts live on the document resource dictionary).
     let fonts = SearchableFontSet::build(&mut doc, pages);
@@ -736,7 +736,7 @@ fn append_pdf_page(
                         .entry(name.to_string())
                         .or_insert_with(|| {
                             let mut layer = printpdf::Layer::new(name);
-                            layer.creator = "Open CAD Studio".into();
+                            layer.creator = "CadMini Studio".into();
                             doc.add_layer(&layer)
                         })
                         .clone();
@@ -1581,7 +1581,7 @@ fn emit_plot_stamp(ops: &mut Vec<Op>) {
     let user = std::env::var("USER")
         .or_else(|_| std::env::var("USERNAME"))
         .unwrap_or_else(|_| "user".into());
-    let label = format!("Open CAD Studio | {user} | {timestamp}");
+    let label = format!("CadMini Studio | {user} | {timestamp}");
     ops.extend([
         Op::SaveGraphicsState,
         Op::StartTextSection,

@@ -1122,7 +1122,7 @@ pub mod crash_log {
         // boundaries still place the fault.
         let backtrace = std::backtrace::Backtrace::force_capture();
         [
-            format!("Open CAD Studio {} crash report", env!("OCS_APP_VERSION")),
+            format!("CadMini Studio {} crash report", env!("OCS_APP_VERSION")),
             format!("when: {when} (unix seconds)"),
             format!("os: {} {}", std::env::consts::OS, std::env::consts::ARCH),
             format!("gpu backend: {backend}"),
@@ -1198,7 +1198,7 @@ pub mod crash_log {
         #[test]
         fn a_report_names_the_message_and_the_line() {
             let text = super::report_from("a deliberate test panic", "src/sys.rs:1:2", 42);
-            assert!(text.starts_with("Open CAD Studio "), "{text}");
+            assert!(text.starts_with("CadMini Studio "), "{text}");
             assert!(text.contains("panic: a deliberate test panic"), "{text}");
             assert!(text.contains("at: src/sys.rs:1:2"), "{text}");
             assert!(text.contains("when: 42 (unix seconds)"), "{text}");
@@ -1347,7 +1347,7 @@ pub mod web_diag {
                 for (id, label) in [
                     (
                         "ocs-err-title",
-                        crate::t!("OpenCADStudio renderer error — copy this into a bug report:"),
+                        crate::t!("CadMini Studio renderer error — copy this into a bug report:"),
                     ),
                     ("ocs-err-copy", crate::t!("Copy")),
                     ("ocs-err-dismiss", crate::t!("Dismiss")),

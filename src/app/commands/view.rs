@@ -70,31 +70,18 @@ impl OpenCADStudio {
     pub(crate) fn dispatch_view(&mut self, cmd: &str, i: usize) -> Option<Task<Message>> {
         match cmd {
             "DONATE" => {
-                self.command_line
-                    .push_info(crate::t!("Opening Patreon page...").as_ref());
-                return Some(crate::sys::open_url(
-                    "https://patreon.com/HakanSeven12",
-                    self.main_window,
-                ));
+                return Some(crate::sys::open_url(crate::brand::REPO, self.main_window));
             }
 
             "WEBVERSION" => {
                 self.command_line
-                    .push_info(crate::t!("Opening OCS Web...").as_ref());
-                return Some(crate::sys::open_url(
-                    "https://hakanseven12.github.io/OpenCADStudio/",
-                    self.main_window,
-                ));
+                    .push_info(crate::t!("CadMini Studio has no web version.").as_ref());
             }
 
             "HELP" => {
-                self.command_line.push_info(
-                    crate::t!("Opening OCS Discussions for help and questions...").as_ref(),
-                );
-                return Some(crate::sys::open_url(
-                    "https://github.com/HakanSeven12/OpenCADStudio/discussions",
-                    self.main_window,
-                ));
+                self.command_line
+                    .push_info(crate::t!("Opening the CadMini Studio guide...").as_ref());
+                return Some(crate::sys::open_url(crate::brand::HELP, self.main_window));
             }
 
             // ── DWGPROPS — Drawing Properties dialog ─────────────────────
@@ -174,7 +161,7 @@ impl OpenCADStudio {
                 // Markdown heading.
                 let body = format!(
                     "<!-- Describe the issue and the steps to reproduce it. -->\n\n\n\
-                     ***\n- Open CAD Studio: v{}\n- Revision: {} ({}, {})\n- Platform: {}\n",
+                     ***\n- CadMini Studio: v{}\n- Revision: {} ({}, {})\n- Platform: {}\n",
                     env!("OCS_FULL_VERSION"),
                     env!("OCS_GIT_REV"),
                     env!("OCS_COMMIT_DATE"),
@@ -182,7 +169,8 @@ impl OpenCADStudio {
                     crate::sys::platform_info(),
                 );
                 let url = format!(
-                    "https://github.com/HakanSeven12/OpenCADStudio/issues/new?body={}",
+                    "{}/new?body={}",
+                    crate::brand::ISSUES,
                     crate::sys::percent_encode(&body)
                 );
                 self.command_line
@@ -201,10 +189,7 @@ impl OpenCADStudio {
             "CHANGELOG" => {
                 self.command_line
                     .push_info(crate::t!("Opening release notes...").as_ref());
-                return Some(crate::sys::open_url(
-                    "https://github.com/HakanSeven12/OpenCADStudio/releases",
-                    self.main_window,
-                ));
+                return Some(crate::sys::open_url(crate::brand::RELEASES, self.main_window));
             }
 
             // ── ALIASEDIT — command-alias editor ───────────────────────────

@@ -1,4 +1,4 @@
-// Open CAD Studio plugin runtime. Plugins are out-of-process cdylibs loaded
+// CadMini Studio plugin runtime. Plugins are out-of-process cdylibs loaded
 // from the application bundle or user plugins folder (see `external`).
 // See `docs/plugin-architecture.md`.
 

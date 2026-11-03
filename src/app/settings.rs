@@ -203,7 +203,7 @@ pub enum RightClickMode {
     /// repeats the last command when idle); holding the button longer than
     /// `right_click_hold_ms` opens the shortcut menu.
     TimeSensitive,
-    /// Original Open CAD Studio behaviour: while a command runs the first
+    /// Original CadMini Studio behaviour: while a command runs the first
     /// right-click is Enter and a second consecutive one opens the menu;
     /// when idle a right-click opens the menu.
     EnterFirst,
@@ -785,6 +785,11 @@ pub struct UserSettings {
     pub workspace: crate::app::workspace::Workspace,
     /// CadMini Studio: ribbon or classic menus and toolbars (UISTYLE).
     pub ui_style: crate::app::workspace::UiStyle,
+    /// CadMini Studio: the classic toolbars' places (empty: the defaults).
+    pub toolbar_layout: Vec<crate::ui::classic_toolbar::BarState>,
+    /// CadMini Studio: its first-run layout (left dock edge auto-hiding,
+    /// leaving the width to the drawing) has been applied.
+    pub cadmini_first_run_done: bool,
     /// CadMini Studio: HATCHFADE / LINEFADE, percent.
     pub hatch_fade: u32,
     pub line_fade: u32,
@@ -901,7 +906,7 @@ pub struct UserSettings {
     // Ortho ($ORTHOMODE) and the running OSNAP set ($OSMODE) are per-drawing —
     // stored in the document header, not here (they used to be persisted app-
     // globally, which duplicated the file's own state).
-    /// Whether the one-time "make Open CAD Studio the default for .dwg/.dxf?"
+    /// Whether the one-time "make CadMini Studio the default for .dwg/.dxf?"
     /// prompt has already been shown. Set once the user answers (either way),
     /// so we never nag again on subsequent launches.
     pub default_assoc_prompted: bool,
@@ -1338,6 +1343,8 @@ impl Default for UserSettings {
             ribbon_closed: true,
             workspace: crate::app::workspace::Workspace::default(),
             ui_style: crate::app::workspace::UiStyle::default(),
+            toolbar_layout: Vec::new(),
+            cadmini_first_run_done: false,
             hatch_fade: 0,
             line_fade: 0,
             options_tab: crate::ui::window::options::OptionsTab::General,

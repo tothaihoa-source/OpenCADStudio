@@ -890,6 +890,10 @@ pub(super) struct OpenCADStudio {
     workspace: workspace::Workspace,
     /// CadMini Studio: ribbon or classic menus and toolbars (UISTYLE).
     ui_style: workspace::UiStyle,
+    /// CadMini Studio: where each classic toolbar is, and a drag under way.
+    toolbar_layout: Vec<crate::ui::classic_toolbar::BarState>,
+    toolbar_drag: Option<crate::ui::classic_toolbar::Drag>,
+    cadmini_first_run_done: bool,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -3539,6 +3543,8 @@ pub enum Message {
     /// space separates the answers to the command's prompts, as in a menu
     /// macro, and no Enter follows the last one.
     MenuCommand(String),
+    /// CadMini Studio: drag or resize a classic toolbar.
+    ClassicToolbar(crate::ui::classic_toolbar::ToolbarMsg),
     /// The Quick Access Toolbar's lists and menus.
     RibbonQat(crate::ui::ribbon::QatMsg),
     /// The minimize button and the minimized ribbon's popups.
@@ -5688,6 +5694,9 @@ impl OpenCADStudio {
             ribbon_closed: true,
             workspace: workspace::Workspace::default(),
             ui_style: workspace::UiStyle::default(),
+            toolbar_layout: crate::ui::classic_toolbar::default_layout(),
+            toolbar_drag: None,
+            cadmini_first_run_done: false,
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,
@@ -6290,6 +6299,7 @@ impl OpenCADStudio {
         // ribbon on show). The workspace tests switch explicitly.
         app.workspace = workspace::Workspace::Modeling3D;
         app.ui_style = workspace::UiStyle::Ribbon;
+        app.dock.auto_hide = (false, false);
         app.ribbon_closed = false;
         app.show_menu_bar = false;
         app.apply_workspace_chrome();
@@ -6423,19 +6433,20 @@ impl OpenCADStudio {
             s.queue_startup_prompts();
         }
         // Fetch the Patreon supporters list once at boot for the Start page.
-        #[cfg(not(target_arch = "wasm32"))]
+        // CadMini Studio: nothing is fetched from the upstream project.
+        #[cfg(any())]
         let patrons_fetch = Task::perform(
             async { crate::patreon::fetch_patrons() },
             Message::PatronsFetched,
         );
-        #[cfg(target_arch = "wasm32")]
-        let patrons_fetch = Task::none();
+        let patrons_fetch: Task<Message> = Task::none();
         // Tutorial videos: show the on-disk cache instantly, refresh from the
         // live playlist in the background. Nothing ships in the binary. The
         // fetch runs on its own OS thread — its several sequential HTTP
         // requests would otherwise sit on the async executor and hold up the
         // rest of the boot tasks (the Start page waited on it).
-        #[cfg(not(target_arch = "wasm32"))]
+        // CadMini Studio: nothing is fetched from the upstream project.
+        #[cfg(any())]
         let videos_fetch = {
             s.set_videos(crate::videos::load_cached());
             s.videos_loading = true;
@@ -6451,11 +6462,11 @@ impl OpenCADStudio {
                 Message::VideosFetched,
             )
         };
-        #[cfg(target_arch = "wasm32")]
-        let videos_fetch = Task::none();
+        let videos_fetch: Task<Message> = Task::none();
         // GitHub Discussions: seed from the last successful fetch, then refresh
         // the public feed and pinned section on a background thread.
-        #[cfg(not(target_arch = "wasm32"))]
+        // CadMini Studio: nothing is fetched from the upstream project.
+        #[cfg(any())]
         let discussions_fetch = {
             s.discussions = crate::discussions::load_cached();
             s.discussions_loading = true;
@@ -6471,8 +6482,7 @@ impl OpenCADStudio {
                 Message::DiscussionsFetched,
             )
         };
-        #[cfg(target_arch = "wasm32")]
-        let discussions_fetch = Task::none();
+        let discussions_fetch: Task<Message> = Task::none();
         // Recent-file thumbnails: decoded off-thread — parsing every recent
         // DWG's preview on the boot path held the first frame back.
         let thumbs_fetch = s.refresh_recent_thumbs();

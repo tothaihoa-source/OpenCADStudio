@@ -1,10 +1,9 @@
 # CadMini Studio
 
-CadMini Studio là bản phát triển từ [Open CAD Studio](https://github.com/HakanSeven12/OpenCADStudio)
-(giấy phép GPL-3.0), điều chỉnh cho người dùng Việt Nam theo hướng của CadMini. Mã nguồn vẫn
-theo GPL-3.0; xem `LICENSE`.
+Phần mềm CAD 2D có GIS và dựng hình 3D. Mã nguồn theo GPL-3.0 (xem `LICENSE`);
+một phần mã nguồn và dữ liệu được lấy từ Open CAD Studio.
 
-## Khác với Open CAD Studio
+## Tính năng
 
 ### 1. Hai không gian làm việc tách biệt: 2D và 3D
 
@@ -23,14 +22,19 @@ Lựa chọn được nhớ cho lần mở sau.
 
 ### 2. Hai kiểu giao diện: Cổ điển (menu + toolbar) và Ribbon
 
-Chọn ở **Tools › Workspaces › Classic Menus and Toolbars / Ribbon (Open CAD Studio)**, hoặc gõ
+Chọn ở **Tools › Workspaces › Classic Menus and Toolbars / Ribbon**, hoặc gõ
 `UISTYLE CLASSIC`, `UISTYLE RIBBON` (`UISTYLE` không tham số: đổi qua lại). Lựa chọn được nhớ.
 
-- **Cổ điển** (mặc định, như CadMini / AutoCAD 2007): thanh menu kéo xuống, ribbon đóng; một hàng
-  toolbar phía trên (Pan/Zoom, Layer/Properties/Match, kiểu chữ/kích thước, kích thước, đo, độ mờ,
-  GIS khi ở 2D); toolbar **Draw** dọc mép trái bản vẽ (thêm lệnh dựng khối khi ở 3D) và **Modify**
-  dọc mép phải. Di chuột lên nút để xem tên và lệnh.
-- **Ribbon**: ribbon như bản gốc Open CAD Studio; thanh menu vẫn giữ phía trên để luôn đổi lại được.
+- **Cổ điển** (mặc định, như CadMini / AutoCAD 2007): thanh menu kéo xuống, ribbon đóng. Các toolbar
+  Standard, Properties, Dimension, Inquiry, Fade, GIS (2D) nằm cùng hàng với Quick Access; **Draw**
+  dọc mép trái bản vẽ (**Modeling** bên cạnh khi ở 3D), **Modify** dọc mép phải.
+  - **Kéo thả**: nắm vào vạch `⋮`/`⋯` ở đầu toolbar để kéo ra nổi trên bản vẽ hoặc dời chỗ; thả sát
+    mép trên vùng vẽ để gắn lại vào hàng trên.
+  - **Co giãn**: kéo góc `◢` của toolbar nổi sang ngang để đổi số cột (1 cột ↔ nhiều cột ↔ 1 hàng).
+  - Vị trí được nhớ; **Tools › Workspaces › Reset Toolbars** (`TOOLBARRESET`) trả về như ban đầu.
+  - Bảng Properties mặc định thu về dải biểu tượng ở mép trái (rê chuột vào để mở, Ctrl+1 để bật/tắt),
+    thanh tab tên bản vẽ thấp — dành chỗ cho bản vẽ.
+- **Ribbon**: ribbon; thanh menu vẫn giữ phía trên để luôn đổi lại được.
 
 ### 3. GIS (trong không gian 2D)
 
@@ -62,5 +66,5 @@ Text/MText (điểm, thuộc tính `name`), Block (điểm chèn, thuộc tính 
 | `HATCHB` (`HATCHGENERATEBOUNDARY`) | Modify › Object › Hatch Boundary to Polyline | Tạo polyline kín theo từng vòng biên của các hatch đã chọn, trên layer hiện hành; hatch giữ nguyên; hoàn tác một bước |
 
 Mức mờ được nhớ cho lần mở sau; chỉ là cách hiển thị trên màn hình, không đổi dữ liệu bản vẽ.
-Lưu ý: lựa chọn `ALL` của Open CAD Studio chưa lấy được hatch tô đặc — hãy chọn hatch bằng cách bấm
+Lưu ý: lựa chọn `ALL` chưa lấy được hatch tô đặc — hãy chọn hatch bằng cách bấm
 hoặc khung chọn.

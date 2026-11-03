@@ -136,7 +136,7 @@ pub fn view_window<'a>(
                 .size(20)
                 .style(primary_style),
             text(t!(
-                "A newer Open CAD Studio version is published on GitHub."
+                "A newer CadMini Studio version is published on GitHub."
             ))
             .size(11)
             .style(muted_style),

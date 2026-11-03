@@ -126,7 +126,7 @@ pub fn build_svg(
         fmt(paper_w),
         fmt(paper_h)
     ));
-    out.push_str(">\n<title>Open CAD Studio plot</title>\n");
+    out.push_str(">\n<title>CadMini Studio plot</title>\n");
     out.push_str("<rect x=\"0\" y=\"0\"");
     out.push_str(&format!(
         " width=\"{}\" height=\"{}\" fill=\"#ffffff\"/>\n",
@@ -900,7 +900,7 @@ fn stamp_element(_paper_w: f64, paper_h: f64) -> String {
         .or_else(|_| std::env::var("USERNAME"))
         .unwrap_or_else(|_| "user".into());
     format!(
-        "<text x=\"4\" y=\"{}\" font-size=\"2.12\" fill=\"#404040\" font-family=\"sans-serif\">Open CAD Studio | {} | {}</text>\n",
+        "<text x=\"4\" y=\"{}\" font-size=\"2.12\" fill=\"#404040\" font-family=\"sans-serif\">CadMini Studio | {} | {}</text>\n",
         fmt(paper_h - 3.0),
         xml_escape(&user),
         timestamp

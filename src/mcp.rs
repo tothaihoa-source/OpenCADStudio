@@ -2591,7 +2591,7 @@ fn response(id: Value, result: Value) -> Value {
 fn server_info() -> Value {
     json!({
         "name":"OpenCADStudio",
-        "title":"Open CAD Studio",
+        "title":"CadMini Studio",
         "version":env!("OCS_APP_VERSION"),
     })
 }

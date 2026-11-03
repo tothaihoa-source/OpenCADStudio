@@ -26,7 +26,7 @@ pub fn build_stl(meshes: &[&MeshModel]) -> Option<Vec<u8>> {
 
     // 80-byte header.
     let mut header = [0u8; 80];
-    let title = b"Open CAD Studio STL export";
+    let title = b"CadMini Studio STL export";
     header[..title.len()].copy_from_slice(title);
     buf.extend_from_slice(&header);
 

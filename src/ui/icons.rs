@@ -344,22 +344,10 @@ impl<M> Widget<M, Theme, Renderer> for SemanticIcon {
 /// The application logo, as the window icon and the About dialog show it.
 const LOGO: &[u8] = include_bytes!("../../assets/logo.svg");
 
-/// The logo's letters alone: its four letter shapes, without the
-/// background, the crosshair and the corner stripes.
+/// The compact logo. The CadMini logo is a single badge, so the compact
+/// form is the badge itself.
 fn logo_letters() -> &'static [u8] {
-    static LETTERS: std::sync::OnceLock<Vec<u8>> = std::sync::OnceLock::new();
-    LETTERS.get_or_init(|| {
-        let source = std::str::from_utf8(LOGO).expect("logo.svg is UTF-8");
-        let paths: String = source
-            .split("<path")
-            .skip(1)
-            .map(|rest| format!("<path{}/>", &rest[..rest.find("/>").unwrap_or(rest.len())]))
-            .collect();
-        format!(
-            r#"<svg width="724" height="292" viewBox="110 192 724 292" fill="none" xmlns="http://www.w3.org/2000/svg">{paths}</svg>"#
-        )
-        .into_bytes()
-    })
+    LOGO
 }
 
 /// The logo in the theme's colours: blue to the accent, white to the text
@@ -1273,9 +1261,8 @@ mod tests {
         ] {
             assert!(!svg.contains(original), "{original} is left");
         }
-        let letters = std::str::from_utf8(super::logo_letters()).unwrap();
-        assert_eq!(letters.matches("<path").count(), 4);
-        assert!(!letters.contains("<rect"));
+        // CadMini Studio: the compact logo is the badge itself.
+        assert_eq!(super::logo_letters(), super::LOGO);
     }
 
     #[test]

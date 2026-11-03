@@ -111,7 +111,7 @@ pub(crate) fn report() -> String {
     let sys = system_info();
     #[allow(unused_mut)]
     let mut out = format!(
-        "CadMini Studio (based on Open CAD Studio) v{}\nRevision: {}\nCommit date: {}\nProfile: {}\nFeatures: {}\n\n\
+        "CadMini Studio v{}\nRevision: {}\nCommit date: {}\nProfile: {}\nFeatures: {}\n\n\
          [System]\nOS: {} ({} {})\nCPU: {}\nLogical processors: {}\nRAM: {} total, {} available\n",
         env!("OCS_FULL_VERSION"),
         env!("OCS_GIT_REV"),
@@ -196,9 +196,10 @@ pub fn view_window(sizing: crate::ui::modal::ModalSizing) -> Element<'static, Me
             logo,
             column![
                 text("CadMini Studio").size(28).style(primary_style),
-                text(t!("2D drafting with GIS and 3D modeling, based on Open CAD Studio (GPL-3.0)"))
+                text(t!("2D drafting with GIS and 3D modeling"))
                     .size(11)
                     .style(muted_style),
+                text(crate::brand::CREDIT).size(10).style(muted_style),
                 text(version.clone()).size(13),
             ]
             .spacing(5),

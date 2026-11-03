@@ -26,7 +26,7 @@ pub const PDF_DEVICE_NAME: &str = "DWG To PDF.pc3";
 pub const NO_DEVICE_NAME: &str = "None";
 /// …and the name it actually stores in the drawing for that choice.
 const NO_DEVICE_STORED_NAME: &str = "none_device";
-/// The label older Open CAD Studio builds wrote into drawings for PDF output.
+/// The label older CadMini Studio builds wrote into drawings for PDF output.
 /// Recognised on read so those drawings keep plotting to PDF, and always
 /// rewritten with [`PDF_DEVICE_NAME`] on save.
 const LEGACY_PDF_LABEL: &str = "Save to PDF file…";

@@ -41,7 +41,7 @@ pub struct MarketView<'a> {
 /// Latest desktop builds, used by the browser-only plugin notice.
 #[cfg(target_arch = "wasm32")]
 pub const DESKTOP_DOWNLOAD_URL: &str =
-    "https://github.com/HakanSeven12/OpenCADStudio/releases/latest";
+    crate::brand::RELEASES_LATEST;
 
 // Register the command names for autocomplete. On the web they open a desktop
 // download notice instead of the native marketplace.
@@ -308,7 +308,7 @@ fn external_card<'a>(
     }
     if p.bundled {
         actions = actions.push(
-            text(t!("Bundled with Open CAD Studio"))
+            text(t!("Bundled with CadMini Studio"))
                 .size(11)
                 .style(muted_style),
         );
@@ -477,7 +477,7 @@ fn registry_error_message(error: &str) -> (Cow<'static, str>, Cow<'static, str>)
         (
             t!("Unable to verify the server certificate"),
             t!(
-                "Open CAD Studio could not trust the certificate presented for the plugin registry. Check your system certificate and proxy settings, then retry."
+                "CadMini Studio could not trust the certificate presented for the plugin registry. Check your system certificate and proxy settings, then retry."
             ),
         )
     } else if error.contains("timed out") || error.contains("timeout") {
@@ -946,7 +946,7 @@ pub fn view_web_notice<'a>() -> Element<'a, Message> {
                 .width(Length::Fit)
                 .align_x(iced::alignment::Horizontal::Center),
             text(t!(
-                "Open CAD Studio plugins are native packages and cannot run inside a browser. Download the desktop app to browse, install, and use plugins."
+                "CadMini Studio plugins are native packages and cannot run inside a browser. Download the desktop app to browse, install, and use plugins."
             ))
             .size(13)
             .width(Length::Fit)

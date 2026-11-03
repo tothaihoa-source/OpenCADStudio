@@ -406,8 +406,8 @@ pub fn build_step(meshes: &[&MeshModel]) -> Option<String> {
     let file = format!(
         "ISO-10303-21;\n\
          HEADER;\n\
-         FILE_DESCRIPTION(('Open CAD Studio STEP export'),'2;1');\n\
-         FILE_NAME('export.step','{ts}',(''),(''),'Open CAD Studio','Open CAD Studio','');\n\
+         FILE_DESCRIPTION(('CadMini Studio STEP export'),'2;1');\n\
+         FILE_NAME('export.step','{ts}',(''),(''),'CadMini Studio','CadMini Studio','');\n\
          FILE_SCHEMA(('AUTOMOTIVE_DESIGN {{ 1 0 10303 214 1 1 1 1 }}'));\n\
          ENDSEC;\n\
          DATA;\n\

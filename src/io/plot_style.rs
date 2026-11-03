@@ -1,4 +1,4 @@
-//! Plot style tables in Open CAD Studio: the plot styles folder, the tables
+//! Plot style tables in CadMini Studio: the plot styles folder, the tables
 //! registered this session, and the shipped ones. The table model and its
 //! CTB/STB codec live in `codec::plot_style`.
 
@@ -176,7 +176,7 @@ fn session_ctb_names() -> Vec<String> {
         .collect()
 }
 
-/// Where Open CAD Studio finds plot style tables: on disk, in this session's
+/// Where CadMini Studio finds plot style tables: on disk, in this session's
 /// registry, and among the shipped ones.
 pub trait PlotStyleTableExt: Sized {
     fn load(path: &Path) -> Result<Self, String>;

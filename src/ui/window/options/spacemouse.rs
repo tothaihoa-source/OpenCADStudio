@@ -124,7 +124,7 @@ pub(crate) fn view(
         let detail = match status {
             Status::Unavailable(reason) => reason,
             Status::Unsupported => "This version supports SpaceMouse through 3DxWare on Windows. Other platforms do not yet have a device adapter.".into(),
-            Status::Disconnected => "3DxWare is running. Connect a SpaceMouse; Open CAD Studio reconnects automatically.".into(),
+            Status::Disconnected => "3DxWare is running. Connect a SpaceMouse; CadMini Studio reconnects automatically.".into(),
             _ => "Uses the installed 3DxWare driver. Navigation pauses while a dialog is open. Your selected navigation mode is saved across drawings and sessions.".into(),
         };
         content = content.push(text(crate::t!(&detail).into_owned()).size(11).width(Fill));

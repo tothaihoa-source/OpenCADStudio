@@ -303,7 +303,8 @@ const MENUS: &[(&str, &[Entry])] = &[
                     Cmd("3D Modeling", "WSCURRENT 3D", ""),
                     Sep,
                     Cmd("Classic Menus and Toolbars", "UISTYLE CLASSIC", ""),
-                    Cmd("Ribbon (Open CAD Studio)", "UISTYLE RIBBON", ""),
+                    Cmd("Ribbon", "UISTYLE RIBBON", ""),
+                    Cmd("Reset Toolbars", "TOOLBARRESET", ""),
                     Sep,
                     Cmd("Save Current As...", "WSSAVE", ""),
                     Cmd("Workspace Settings...", "WSSETTINGS", ""),
@@ -741,7 +742,7 @@ const MENUS: &[(&str, &[Entry])] = &[
             Cmd("Keyboard Shortcuts", "SHORTCUTS", ""),
             Cmd("Send Feedback", "FEEDBACK", ""),
             Sep,
-            Cmd("About Open CAD Studio", "ABOUT", ""),
+            Cmd("About CadMini Studio", "ABOUT", ""),
         ],
     ),
 ];

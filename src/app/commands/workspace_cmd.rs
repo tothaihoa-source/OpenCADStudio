@@ -75,6 +75,12 @@ impl OpenCADStudio {
                 Some(self.set_workspace(target))
             }
             "WS2D" => Some(self.set_workspace(Workspace::Drafting2D)),
+            "TOOLBARRESET" => {
+                self.toolbar_layout = crate::ui::classic_toolbar::default_layout();
+                self.persist_settings_if_changed();
+                self.command_line.push_info(crate::t!("Toolbars back in their places.").as_ref());
+                Some(Task::none())
+            }
             "UISTYLE" => {
                 let style = if arg.is_empty() {
                     match self.ui_style {
@@ -109,7 +115,7 @@ impl OpenCADStudio {
 }
 
 inventory::submit!(crate::command::CommandRegistration {
-    names: &["WSCURRENT", "WORKSPACE", "WS2D", "WS3D", "UISTYLE"],
+    names: &["WSCURRENT", "WORKSPACE", "WS2D", "WS3D", "UISTYLE", "TOOLBARRESET"],
 });
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-//! "Make Open CAD Studio the default for .dwg / .dxf" — the platform-specific
+//! "Make CadMini Studio the default for .dwg / .dxf" — the platform-specific
 //! plumbing behind the one-time first-launch prompt (see `app::update`'s
 //! `AssocPrompt*` handlers).
 //!
@@ -10,7 +10,7 @@
 //!     per-app default-programs dialog via
 //!     `IApplicationAssociationRegistrationUI::LaunchAdvancedAssociationUI`,
 //!     passing the RegisteredApplications name the MSI registered
-//!     ("Open CAD Studio"). The user confirms there.
+//!     ("CadMini Studio"). The user confirms there.
 //!   * Linux — `xdg-mime default` writes the association into the user's
 //!     `mimeapps.list`; no separate consent step. The .desktop file already
 //!     declares the matching `MimeType=` entries.
@@ -186,7 +186,7 @@ mod windows_impl {
     }
 
     // Must match the RegisteredApplications value name in packaging/windows/main.wxs.
-    const APP_REGISTRY_NAME: &str = "Open CAD Studio";
+    const APP_REGISTRY_NAME: &str = "CadMini Studio";
 
     pub(super) fn set_default() -> Result<String, String> {
         unsafe {
@@ -248,7 +248,7 @@ mod windows_impl {
             .spawn()
             .ok()?;
         Some(
-            "Opened Settings → Default apps — choose Open CAD Studio for .dwg / .dxf there."
+            "Opened Settings → Default apps — choose CadMini Studio for .dwg / .dxf there."
                 .to_string(),
         )
     }
@@ -267,7 +267,7 @@ mod windows_impl {
             r"Software\Classes\OpenCADStudio.DWG",
             r"Software\Classes\OpenCADStudio.DXF",
             r"Software\Classes\OpenCADStudio.BAK",
-            r"Software\Open CAD Studio",
+            r"Software\CadMini Studio",
         ] {
             let w = wide(key);
             unsafe {
@@ -387,7 +387,7 @@ mod windows_impl {
     ///   * an `Applications\OpenCADStudio.exe` entry → listed under "Open with";
     ///   * ProgIDs + a Capabilities / RegisteredApplications block → the app is
     ///     a default-app candidate, so the in-app "set as default" prompt's OS
-    ///     dialog (LaunchAdvancedAssociationUI "Open CAD Studio") finds it.
+    ///     dialog (LaunchAdvancedAssociationUI "CadMini Studio") finds it.
     pub(super) fn register_handler() -> Result<(), String> {
         let exe = std::env::current_exe().map_err(|e| e.to_string())?;
         let exe = exe.to_string_lossy().to_string();
@@ -399,7 +399,7 @@ mod windows_impl {
             None,
             &format!("\"{exe}\" \"%1\""),
         )?;
-        set_string(APP_BASE, Some("FriendlyAppName"), "Open CAD Studio")?;
+        set_string(APP_BASE, Some("FriendlyAppName"), "CadMini Studio")?;
         // DefaultIcon is what Windows uses to show the app icon in the
         // "Open with" context-menu list and the "Choose another app" picker.
         set_string(
@@ -441,9 +441,9 @@ mod windows_impl {
         // Mirrors the MSI's DefaultPrograms component, but per-user, so the
         // portable build is a Default-Apps candidate too. The value name in
         // RegisteredApplications must equal the name passed to
-        // LaunchAdvancedAssociationUI ("Open CAD Studio").
-        const CAP: &str = r"Software\Open CAD Studio\Capabilities";
-        set_string(CAP, Some("ApplicationName"), "Open CAD Studio")?;
+        // LaunchAdvancedAssociationUI ("CadMini Studio").
+        const CAP: &str = r"Software\CadMini Studio\Capabilities";
+        set_string(CAP, Some("ApplicationName"), "CadMini Studio")?;
         set_string(
             CAP,
             Some("ApplicationDescription"),
@@ -466,8 +466,8 @@ mod windows_impl {
         )?;
         set_string(
             r"Software\RegisteredApplications",
-            Some("Open CAD Studio"),
-            r"Software\Open CAD Studio\Capabilities",
+            Some("CadMini Studio"),
+            r"Software\CadMini Studio\Capabilities",
         )?;
         Ok(())
     }
@@ -543,7 +543,7 @@ mod linux_impl {
 
         let contents = format!(
             "[Desktop Entry]\n\
-             Name=Open CAD Studio\n\
+             Name=CadMini Studio\n\
              Comment=A CAD application for 2D/3D drawing and design\n\
              Exec={exec} %F\n\
              Icon={APP_ID}\n\
@@ -761,7 +761,7 @@ mod linux_impl {
             .status()
             .map_err(|e| format!("could not run xdg-mime: {e}"))?;
         if status.success() {
-            Ok("Open CAD Studio is now the default for .dwg and .dxf files.".to_string())
+            Ok("CadMini Studio is now the default for .dwg and .dxf files.".to_string())
         } else {
             Err(format!("xdg-mime exited with {status}"))
         }
@@ -843,7 +843,7 @@ mod macos_impl {
         }
         unsafe { CFRelease(bundle as *const c_void) };
         match last_err {
-            None => Ok("Open CAD Studio is now the default for .dwg and .dxf files.".to_string()),
+            None => Ok("CadMini Studio is now the default for .dwg and .dxf files.".to_string()),
             Some(e) => Err(e),
         }
     }

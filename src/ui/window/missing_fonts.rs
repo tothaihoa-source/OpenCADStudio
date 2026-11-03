@@ -59,7 +59,7 @@ pub fn view_window<'a>(
         column![
             text(crate::t!("Missing fonts")).size(20),
             text(crate::t!(
-                "This drawing uses fonts that are not installed on this machine. OpenCADStudio can download any redistributable fonts that exist in the selected repository; unavailable fonts will keep using a substitute."
+                "This drawing uses fonts that are not installed on this machine. CadMini Studio can download any redistributable fonts that exist in the selected repository; unavailable fonts will keep using a substitute."
             ))
             .size(11)
             .style(muted_style),
