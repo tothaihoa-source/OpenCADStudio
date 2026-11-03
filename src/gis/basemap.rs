@@ -205,7 +205,7 @@ fn split(v: f64) -> (f32, f32) {
 }
 
 /// One tile as a raster bent onto VN-2000.
-fn tile_model(crs: &DrawingCrs, key: TileKey, tile: &Tile, opacity: f32, depth: f32) -> ImageModel {
+pub fn tile_model(crs: &DrawingCrs, key: TileKey, tile: &Tile, opacity: f32, depth: f32) -> ImageModel {
     let (mx0, my0, mx1, my1) = tiles::tile_bounds(key);
     let mut grid = vec![[0.0f64; 2]; (GRID + 1) * (GRID + 1)];
     for j in 0..=GRID {
@@ -256,6 +256,80 @@ fn tile_model(crs: &DrawingCrs, key: TileKey, tile: &Tile, opacity: f32, depth: 
         pixelated: false,
         use_alpha: false,
     }
+}
+
+/// The tiles an export of `window` (drawing units) needs at `units_per_px`
+/// (the output's resolution), coarser while there would be more than
+/// `max_tiles`: the zoom, the keys.
+pub fn export_tiles(
+    crs: &DrawingCrs,
+    source: &TileSource,
+    window: [f64; 4],
+    units_per_px: f64,
+    max_tiles: usize,
+) -> Option<(u8, Vec<TileKey>)> {
+    let [x0, y0, x1, y1] = window;
+    let (mut mx, mut my) = (Vec::new(), Vec::new());
+    for fx in [0.0, 0.5, 1.0] {
+        for fy in [0.0, 0.5, 1.0] {
+            let (lon, lat) = crs.to_wgs84(x0 + fx * (x1 - x0), y0 + fy * (y1 - y0));
+            if !(lon.is_finite() && lat.is_finite()) || lat.abs() > 85.0 {
+                return None;
+            }
+            let (x, y) = tiles::lonlat_to_merc(lon, lat);
+            mx.push(x);
+            my.push(y);
+        }
+    }
+    let (_, lat) = crs.to_wgs84((x0 + x1) / 2.0, (y0 + y1) / 2.0);
+    let min = |v: &[f64]| v.iter().copied().fold(f64::INFINITY, f64::min);
+    let max = |v: &[f64]| v.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let mut z = tiles::zoom_for(units_per_px.max(1e-6), lat, source.max_zoom);
+    loop {
+        let keys = tiles::tiles_for(min(&mx), min(&my), max(&mx), max(&my), z);
+        if keys.len() <= max_tiles || z == 0 {
+            return Some((z, keys));
+        }
+        z -= 1;
+    }
+}
+
+/// The background of an export: every tile it needs, loaded (disk cache,
+/// else downloaded, `parallel` at a time), as rasters bent onto VN-2000
+/// under the drawing. Blocking: call from a worker thread. Returns the
+/// rasters and how many tiles could not be had.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn export_models(
+    crs: &DrawingCrs,
+    source: &TileSource,
+    window: [f64; 4],
+    units_per_px: f64,
+    opacity: f32,
+) -> (Vec<ImageModel>, usize) {
+    let Some((_, keys)) = export_tiles(crs, source, window, units_per_px, 400) else {
+        return (Vec::new(), 0);
+    };
+    let mut loaded: Vec<(TileKey, Option<Tile>)> = Vec::with_capacity(keys.len());
+    for chunk in keys.chunks(MAX_PARALLEL) {
+        std::thread::scope(|scope| {
+            let handles: Vec<_> =
+                chunk.iter().map(|&key| scope.spawn(move || (key, tiles::load(source, key)))).collect();
+            for h in handles {
+                if let Ok(r) = h.join() {
+                    loaded.push(r);
+                }
+            }
+        });
+    }
+    let missing = loaded.iter().filter(|(_, t)| t.is_none()).count();
+    let models = loaded
+        .iter()
+        .enumerate()
+        .filter_map(|(k, (key, tile))| {
+            tile.as_ref().map(|t| tile_model(crs, *key, t, opacity, -0.99 + 1e-7 * k as f32))
+        })
+        .collect();
+    (models, missing)
 }
 
 #[cfg(test)]

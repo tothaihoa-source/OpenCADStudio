@@ -38,7 +38,7 @@ jobs:
 
       - name: Test GIS and workspace code
         shell: bash
-        run: 'cargo test --locked --release --lib -- gis:: workspace menu_bar cadmini_cmd display_fade classic_toolbar gpmb trichluc'
+        run: 'cargo test --locked --release --lib -- gis:: workspace menu_bar cadmini_cmd display_fade classic_toolbar gpmb trichluc xuat'
 
       - name: Build
         shell: bash

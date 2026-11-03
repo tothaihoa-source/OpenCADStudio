@@ -800,6 +800,8 @@ pub struct UserSettings {
     pub line_fade: u32,
     /// CadMini Studio: TRICHLUC's remembered fields (JSON, CadMini's keys).
     pub trichluc_defaults: String,
+    /// CadMini Studio: XUAT's options (JSON).
+    pub xuat_options: String,
     /// When true, double-clicking a block reference starts REFEDIT instead of BEDIT.
     pub double_click_block_refedit: bool,
     /// When true, double-clicking a block with attributes opens ATTEDIT.
@@ -1359,6 +1361,7 @@ impl Default for UserSettings {
             hatch_fade: 0,
             line_fade: 0,
             trichluc_defaults: String::new(),
+            xuat_options: String::new(),
             options_tab: crate::ui::window::options::OptionsTab::General,
             show_viewcube: true,
             show_ucs_icon: true,

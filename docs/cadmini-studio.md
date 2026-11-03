@@ -138,3 +138,26 @@ và phần ký. Mỗi tờ là một bước hoàn tác; layer `TL_KHUNG`, `TL_C
 - Thông số lưu trong XDATA `CADMINI_TL` của polyline — giống CadMini, hai phần mềm sửa được tờ của nhau.
 - `TLPDF` (**GIS › Extract Sheets to PDF**): mọi tờ trích lục trong bản vẽ ra **một file PDF**, mỗi tờ
   một trang đúng khổ giấy và tỉ lệ, in đen trắng (monochrome), nét theo lineweight.
+
+### 7. XUAT — xuất vùng chọn ra PDF / JPG / PNG, có nền vệ tinh (như CadMini)
+
+Menu **File › Export Window to PDF/JPG/PNG (XUAT)** hoặc **GIS › Export Window with Satellite
+Background**, hoặc gõ `XUAT` (`EXPORTWIN`). Chọn hai góc của vùng xuất; dòng lệnh hiện tình trạng và các nút:
+
+| Nút | Việc làm |
+|---|---|
+| **Save** (Enter) | Chọn tên file rồi xuất |
+| **PDF/JPG/PNG** | Định dạng: PDF vector (nét sắc ở mọi mức phóng) hoặc ảnh |
+| **Paper** | Khổ A4 → A3 → A2 → A1 → A0 |
+| **Orientation** | Tự động theo vùng chọn → đứng → ngang |
+| **Scale** | `1:n` theo đơn vị mét (VN-2000); `0` = vừa khổ giấy (lề 5 mm) |
+| **Mono/Color** | Nét đen trắng (monochrome) hoặc màu như bản vẽ |
+| **Satellite** | Nền ảnh vệ tinh / bản đồ dưới bản vẽ (bản vẽ cần có hệ toạ độ `GISCRS`); dùng nguồn và độ đậm đang chọn ở GISSOURCE / GISOPACITY (Esri, Google, OpenStreetMap, OpenTopoMap địa hình…) |
+| **DPI** | Độ phân giải ảnh JPG/PNG (100–600; khổ lớn tự hạ để ảnh không quá 60 triệu điểm ảnh) |
+
+- Vùng ngoài khung chọn bị cắt; vùng chọn đặt giữa tờ giấy.
+- Ảnh nền được tải theo độ mịn của bản in (khoảng 0,2 mm giấy một điểm ảnh với PDF, một điểm ảnh
+  với JPG/PNG; nhiều quá 400 ô thì giảm mức zoom), nắn sang VN-2000 như nền trên màn hình, lấy từ bộ
+  nhớ đệm trên đĩa nếu đã có.
+- Việc tải ảnh và ghi file chạy nền, không treo chương trình; xong thì file tự mở.
+- Lựa chọn được nhớ cho lần sau.

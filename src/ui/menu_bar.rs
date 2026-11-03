@@ -50,6 +50,7 @@ const MENUS: &[(&str, &[Entry])] = &[
             Cmd("Save", "QSAVE", "Ctrl+S"),
             Cmd("Save As...", "SAVEAS", "Ctrl+Shift+S"),
             Cmd("Export...", "EXPORT", ""),
+            Cmd("Export Window to PDF/JPG/PNG (XUAT)...", "XUAT", ""),
             Cmd("eTransmit...", "ETRANSMIT", ""),
             Sep,
             Cmd("Page Setup Manager...", "PAGESETUP", ""),
@@ -693,6 +694,7 @@ const MENUS: &[(&str, &[Entry])] = &[
             Cmd("Go to Lat/Long", "GISGOTO", ""),
             Cmd("Open Google Maps at Point", "GMAP", ""),
             Sep,
+            Cmd("Export Window with Satellite Background (XUAT)...", "XUAT", ""),
             Cmd("Parcel Extract Sheet (TRICHLUC)...", "TRICHLUC", ""),
             Cmd("Extract Sheets to PDF...", "TLPDF", ""),
             Sub(

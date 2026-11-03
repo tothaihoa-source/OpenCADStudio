@@ -821,6 +821,7 @@ impl OpenCADStudio {
             hatch_fade: crate::scene::display_fade::hatch_fade(),
             line_fade: crate::scene::display_fade::line_fade(),
             trichluc_defaults: self.trichluc_defaults.clone(),
+            xuat_options: self.xuat_options.clone(),
             options_tab: self.options_tab,
             show_viewcube: self.show_viewcube,
             show_ucs_icon: self.show_ucs_icon,
@@ -1005,6 +1006,7 @@ impl OpenCADStudio {
         crate::scene::display_fade::set_hatch_fade(s.hatch_fade);
         crate::scene::display_fade::set_line_fade(s.line_fade);
         self.trichluc_defaults = s.trichluc_defaults.clone();
+        self.xuat_options = s.xuat_options.clone();
         self.apply_workspace_chrome();
         self.options_tab = s.options_tab;
         self.spacemouse_preferences = s.spacemouse;
@@ -7799,9 +7801,24 @@ impl OpenCADStudio {
     /// `window` exactly filling a `paper` (mm) page, monochrome, object
     /// line weights.
     pub(in crate::app) fn sheet_plot_page(&self, window: [f64; 4], paper: [f64; 2]) -> PdfPageInput {
+        let s = paper[0] / (window[2] - window[0]).max(1e-9);
+        self.window_plot_page(window, paper, s, [0.0, 0.0], true)
+    }
+
+    /// CadMini Studio (TRICHLUC, XUAT): the model `window` on a `paper` (mm)
+    /// page at `mm_per_unit`, its lower-left corner at `target` mm, clipped
+    /// to the window; monochrome or as drawn, object line weights.
+    pub(in crate::app) fn window_plot_page(
+        &self,
+        window: [f64; 4],
+        paper: [f64; 2],
+        mm_per_unit: f64,
+        target: [f64; 2],
+        monochrome: bool,
+    ) -> PdfPageInput {
         let scene = &self.tabs[self.active_tab].scene;
         let [x0, y0, x1, y1] = window;
-        let scale = paper[0] / (x1 - x0).max(1e-9);
+        let scale = mm_per_unit.max(1e-12);
         let (wx0, wy0, wx1, wy1) = (x0 as f32, y0 as f32, x1 as f32, y1 as f32);
         let mut content = plot_scene_content(scene, false, None);
         let in_window = |wire: &crate::io::pdf_export::PlotWire| {
@@ -7816,15 +7833,16 @@ impl OpenCADStudio {
             .filter(|wire| in_window(wire))
             .count();
         std::sync::Arc::make_mut(&mut content.wires).retain(in_window);
+        let (ox, oy) = (target[0] / scale, target[1] / scale);
         PdfPageInput {
             content,
             paper_w: paper[0],
             paper_h: paper[1],
-            offset_x: -x0,
-            offset_y: -y0,
+            offset_x: ox - x0,
+            offset_y: oy - y0,
             rotation_deg: 0,
             scale: scale as f32,
-            clip: Some((0.0, 0.0, (x1 - x0) as f32, (y1 - y0) as f32)),
+            clip: Some((ox as f32, oy as f32, (x1 - x0) as f32, (y1 - y0) as f32)),
             options: crate::io::pdf_export::PdfPlotOptions {
                 object_lineweights: true,
                 scale_lineweights: false,
@@ -7833,10 +7851,11 @@ impl OpenCADStudio {
                 merge_lines: false,
                 quality: crate::io::pdf_export::PlotQuality::High,
             },
-            plot_style: crate::io::plot_style::PlotStyleTable::load_named(
-                crate::io::plot_style::MONOCHROME_PLOT_STYLE,
-            )
-            .ok(),
+            plot_style: if monochrome {
+                crate::io::plot_style::PlotStyleTable::load_named(crate::io::plot_style::MONOCHROME_PLOT_STYLE).ok()
+            } else {
+                None
+            },
         }
     }
 

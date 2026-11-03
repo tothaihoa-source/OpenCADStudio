@@ -901,6 +901,9 @@ pub(super) struct OpenCADStudio {
     /// CadMini Studio: TRICHLUC's remembered fields and the sheet being set up.
     trichluc_defaults: String,
     trichluc: Option<commands::trichluc_cmd::Pending>,
+    /// CadMini Studio: XUAT's options (JSON) and the window being exported.
+    xuat_options: String,
+    xuat: Option<commands::xuat_cmd::Pending>,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -5712,6 +5715,8 @@ impl OpenCADStudio {
             gpmb: std::collections::HashMap::new(),
             trichluc_defaults: String::new(),
             trichluc: None,
+            xuat_options: String::new(),
+            xuat: None,
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,
