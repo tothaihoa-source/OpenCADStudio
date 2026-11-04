@@ -331,6 +331,9 @@ pub struct Pipeline {
     /// viewport rect. Recomputed by `compute_wipeout_lod`.
     wipeout_skip_flags: Vec<bool>,
     gpu_images: Vec<ImageGpu>,
+    /// CadMini Studio: the satellite / map background (GISSAT), drawn at
+    /// the start of the hatch pass so faded hatches and lines show it.
+    gpu_basemap: Vec<ImageGpu>,
     gpu_point_clouds: point_cloud_gpu::PointCloudGpu,
     /// Batched mesh geometry — every solid's LOD0 concatenated into a few large
     /// buffers so the whole set draws in a handful of calls instead of one per
@@ -2508,6 +2511,7 @@ impl Pipeline {
             gpu_wipeouts: vec![],
             wipeout_skip_flags: vec![],
             gpu_images: vec![],
+            gpu_basemap: vec![],
             gpu_point_clouds,
             gpu_mesh_batch: Default::default(),
             gpu_mesh_dynamic: vec![],
@@ -3968,7 +3972,11 @@ analytic={:.1} regular={:.1} blocks={:.1}",
         queue: &wgpu::Queue,
         images: &[ImageModel],
     ) {
-        self.gpu_images = ImageGpu::from_models(device, queue, images, &self.image_bgl1);
+        // The map background goes under the hatches (see `gpu_basemap`).
+        let (basemap, own): (Vec<ImageModel>, Vec<ImageModel>) =
+            images.iter().cloned().partition(|m| m.file_path.starts_with("basemap:"));
+        self.gpu_basemap = ImageGpu::from_models(device, queue, &basemap, &self.image_bgl1);
+        self.gpu_images = ImageGpu::from_models(device, queue, &own, &self.image_bgl1);
     }
 
     pub fn upload_point_clouds(
@@ -4348,6 +4356,19 @@ analytic={:.1} regular={:.1} blocks={:.1}",
                     pass.set_bind_group(0, &self.uniform_bind_group, &[]);
                     pass.set_stencil_reference(stencil_ref);
                     pass.draw(0..3, 0..1);
+                }
+                // The map background first: whatever is drawn faded on top
+                // (HATCHFADE / LINEFADE) lets it show through.
+                if !self.gpu_basemap.is_empty() {
+                    pass.set_pipeline(&self.image_pipeline);
+                    pass.set_bind_group(0, &self.uniform_bind_group, &[]);
+                    pass.set_stencil_reference(stencil_ref);
+                    for img in self.gpu_basemap.iter() {
+                        pass.set_bind_group(1, &img.bind_group, &[]);
+                        pass.set_vertex_buffer(0, img.vertex_buffer.slice(..));
+                        pass.set_vertex_buffer(1, img.instance_buffer.slice(..));
+                        pass.draw(0..img.vertex_count, 0..img.instance_count);
+                    }
                 }
                 // The capability-selected façade dispatches storage or texture
                 // draws before wires so outlines remain on top in either backend.
@@ -5534,6 +5555,7 @@ analytic={:.1} regular={:.1} blocks={:.1}",
         self.gpu_wipeouts.clear();
         self.wipeout_skip_flags.clear();
         self.gpu_images.clear();
+        self.gpu_basemap.clear();
         self.gpu_mesh_batch = Default::default();
         self.gpu_mesh_dynamic.clear();
         self.mesh_disabled_chunks.clear();

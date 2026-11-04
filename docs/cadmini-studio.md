@@ -78,8 +78,8 @@ Text/MText (điểm, thuộc tính `name`), Block (điểm chèn, thuộc tính 
 
 | Lệnh | Menu | Việc làm |
 |---|---|---|
-| `HATCHFADE [0–90]` | View › Fade › Hatch Fade … | Vẽ hatch mờ đi (đặc, mẫu, gradient) để nổi nét vẽ. Gõ không kèm số: hỏi %, Enter đổi tắt ↔ 50 % |
-| `LINEFADE [0–90]` | View › Fade › Line Fade … | Vẽ nét, cung, chữ mờ đi để nổi hatch/ảnh nền |
+| `HATCHFADE [0–90]` | View › Fade › Hatch Fade … | Hatch (đặc, mẫu, gradient) **trong suốt** theo %: nhìn xuyên qua thấy **ảnh nền vệ tinh** và nét phía dưới. Gõ không kèm số: hỏi %, Enter đổi tắt ↔ 50 % |
+| `LINEFADE [0–90]` | View › Fade › Line Fade … | Nét, cung, chữ trong suốt theo % để thấy rõ ảnh nền / hatch phía sau |
 | `TPY` (`TRANSPARENCYDISPLAY`) | View › Fade › Transparency Display | Bật/tắt hiển thị độ trong suốt của layer/đối tượng |
 | `HATCHB` (`HATCHGENERATEBOUNDARY`) | Modify › Object › Hatch Boundary to Polyline | Tạo polyline kín theo từng vòng biên của các hatch đã chọn, trên layer hiện hành; đoạn thẳng giữ đỉnh, **cung tròn giữ là cung** (bulge), chỉ elip/spline được chia nhỏ; hatch giữ nguyên; hoàn tác một bước |
 
