@@ -19,6 +19,7 @@ pub mod entities;
 pub mod gis;
 pub mod gpmb;
 pub mod trichluc;
+pub mod bandoht;
 pub mod brand;
 pub(crate) mod entity_creation;
 #[cfg(not(target_arch = "wasm32"))]

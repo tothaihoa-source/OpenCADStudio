@@ -822,6 +822,7 @@ impl OpenCADStudio {
             line_fade: crate::scene::display_fade::line_fade(),
             trichluc_defaults: self.trichluc_defaults.clone(),
             xuat_options: self.xuat_options.clone(),
+            bandoht_options: self.bandoht_options.clone(),
             options_tab: self.options_tab,
             show_viewcube: self.show_viewcube,
             show_ucs_icon: self.show_ucs_icon,
@@ -1007,6 +1008,7 @@ impl OpenCADStudio {
         crate::scene::display_fade::set_line_fade(s.line_fade);
         self.trichluc_defaults = s.trichluc_defaults.clone();
         self.xuat_options = s.xuat_options.clone();
+        self.bandoht_options = s.bandoht_options.clone();
         self.apply_workspace_chrome();
         self.options_tab = s.options_tab;
         self.spacemouse_preferences = s.spacemouse;

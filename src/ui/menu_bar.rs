@@ -694,6 +694,8 @@ const MENUS: &[(&str, &[Entry])] = &[
             Cmd("Go to Lat/Long", "GISGOTO", ""),
             Cmd("Open Google Maps at Point", "GMAP", ""),
             Sep,
+            Cmd("Present-State Map from OpenStreetMap (BANDOHT)...", "BANDOHT", ""),
+            Cmd("Roads and Places from OpenStreetMap (OSMDUONG)...", "OSMDUONG", ""),
             Cmd("Export Window with Satellite Background (XUAT)...", "XUAT", ""),
             Cmd("Parcel Extract Sheet (TRICHLUC)...", "TRICHLUC", ""),
             Cmd("Extract Sheets to PDF...", "TLPDF", ""),

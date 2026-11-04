@@ -19,6 +19,7 @@ pub(in crate::app) enum Dialog {
     Trichluc(TlForm),
     Xuat(XuatForm),
     Crs(CrsForm),
+    Bando(super::bandoht_cmd::BandoForm),
 }
 
 impl Dialog {
@@ -28,6 +29,7 @@ impl Dialog {
             Dialog::Trichluc(_) => "Trích lục thửa đất (TRICHLUC)",
             Dialog::Xuat(_) => "Xuất PDF / ảnh theo vùng chọn (XUAT)",
             Dialog::Crs(_) => "Hệ toạ độ và nền bản đồ (GIS)",
+            Dialog::Bando(_) => "Tạo bản đồ hiện trạng (BANDOHT)",
         }
     }
 }
@@ -159,6 +161,7 @@ pub(in crate::app) fn view<'a>(d: &'a Dialog, sizing: crate::ui::modal::ModalSiz
         Dialog::Trichluc(f) => tl_view(f),
         Dialog::Xuat(f) => xuat_view(f),
         Dialog::Crs(f) => crs_view(f),
+        Dialog::Bando(f) => super::bandoht_cmd::view(f),
     };
     container(body).padding(12).width(sizing.width).height(sizing.height).into()
 }
@@ -773,6 +776,7 @@ impl OpenCADStudio {
                 self.xuat = None;
                 self.cm_close();
             }
+            (Dialog::Bando(_), m) => return self.bando_msg(i, m),
             // GPMB
             (Dialog::Gpmb(f), Msg::Layer(k, on)) => {
                 if let Some(l) = f.layers.get_mut(k) {

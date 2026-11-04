@@ -1056,7 +1056,7 @@ impl OpenCADStudio {
             // CadMini Studio commands read their argument from the line;
             // probing the bare word would toggle them first.
             || [
-                "WSCURRENT", "WORKSPACE", "UISTYLE", "_GPMB3RUN", "_GPMBTABLEAT", "_GPMBXLSXFILE", "_GPMBSAVE", "_TLRUN", "_XUATBOX", "_XUATSET", "_XUATFILE", "_XUATDONE", "_TLSET", "_TLJSON", "_TLPDFFILE", "_GPMB4PDF", "HATCHFADE", "LINEFADE", "GISCRS", "GISGOTO",
+                "WSCURRENT", "WORKSPACE", "UISTYLE", "_GPMB3RUN", "_GPMBTABLEAT", "_GPMBXLSXFILE", "_GPMBSAVE", "_TLRUN", "_XUATBOX", "_BDHTRUN", "_BDHTBOX", "_BDHTDONE", "_XUATSET", "_XUATFILE", "_XUATDONE", "_TLSET", "_TLJSON", "_TLPDFFILE", "_GPMB4PDF", "HATCHFADE", "LINEFADE", "GISCRS", "GISGOTO",
                 "GISIMPORT", "GISEXPORT", "GISSAT", "GISSOURCE", "GISURL", "GISOPACITY",
             ]
             .iter()

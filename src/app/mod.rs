@@ -905,6 +905,9 @@ pub(super) struct OpenCADStudio {
     xuat_options: String,
     xuat: Option<commands::xuat_cmd::Pending>,
     cadmini_dialog: Option<commands::cadmini_dialogs::Dialog>,
+    /// CadMini Studio: BANDOHT's options (JSON); OSMDUONG under way.
+    bandoht_options: String,
+    bando_roads_only: bool,
     /// Use REFEDIT rather than BEDIT when double-clicking an attribute-free block.
     double_click_block_refedit: bool,
     /// Open ATTEDIT when double-clicking a block with attributes.
@@ -5723,6 +5726,8 @@ impl OpenCADStudio {
             xuat_options: String::new(),
             xuat: None,
             cadmini_dialog: None,
+            bandoht_options: String::new(),
+            bando_roads_only: false,
             double_click_block_refedit: false,
             double_click_block_attedit: true,
             right_click_mode: settings::RightClickMode::ShortcutMenu,

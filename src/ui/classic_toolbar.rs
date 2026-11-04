@@ -60,6 +60,7 @@ const GIS: &[Entry] = &[
     ("GPMB", "Land Clearance (GPMB)", "▦"),
     ("TRICHLUC", "Parcel Extract Sheet (TRICHLUC)", "▤"),
     ("XUAT", "Export Window to PDF/JPG/PNG (XUAT)", "⎙"),
+    ("BANDOHT", "Present-State Map (BANDOHT)", "🗺"),
 ];
 
 const FADE: &[Entry] = &[

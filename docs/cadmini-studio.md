@@ -179,3 +179,22 @@ Các chức năng CadMini dùng hộp thoại thay cho hỏi đáp trên dòng l
   nguồn ảnh, độ đậm. `GISSAT` khi bản vẽ chưa có hệ toạ độ cũng mở hộp thoại này.
 
 Các lệnh dạng có tham số (`GPMB1`, `GPMB3`, `_TLSET`, `_XUATSET`, `GISCRS Hà Tĩnh`…) vẫn dùng được trong script.
+
+### 8. BANDOHT — bản đồ hiện trạng từ dữ liệu mở (như CadMini)
+
+Menu **GIS › Present-State Map from OpenStreetMap (BANDOHT)** (`BANDOHT`, `BDHT`), hoặc
+**OSMDUONG** chỉ lấy đường và địa danh. Bản vẽ cần có hệ toạ độ (GISCRS). Chọn ranh là polyline
+kín / đường tròn rồi Enter; Enter không chọn gì thì kéo khung. Hộp thoại chọn lớp cần lấy:
+
+| Nhóm | Lớp (layer) |
+|---|---|
+| Đường giao thông | Tim đường đỏ nét đứt (`Tim_duong`); mép đường tím (`Mep_duong`) — mỗi ô phố một polyline liền, **bo cung R thật (bulge) tại nút giao** theo cấp đường (chính 12 m, liên khu vực 10 m, khu vực 8 m, nội bộ 5 m, ngõ 3 m), bề rộng theo cấp hoặc thẻ `width`; tên đường / ngõ ghi dọc tuyến (`Ten_duong`, `Ten_ngo`); tuỳ chọn cả lối đi bộ |
+| Địa danh | Thôn, xóm, phường (`DD_Dia_danh`), trường học, quán ăn, nhà nghỉ, địa điểm khác (`DD_*`) |
+| Hiện trạng | Nhà (`HT_Nha`), mặt nước tô xanh (`HT_Mat_nuoc`), sông suối và tên (`HT_Song_suoi`, `Ten_song_suoi`), cây xanh tô (`HT_Cay_xanh`), đất nông nghiệp (`HT_Nong_nghiep`), đường sắt, đường điện |
+| Cao độ địa hình | Đường đồng mức (`HT_Duong_dong_muc`), đồng mức cái có ghi cao độ (`HT_Duong_dong_muc_cai`), điểm cao độ (`HT_Cao_do`); khoảng cao đều và khoảng cách điểm tự chọn hoặc đặt; dữ liệu Terrarium (SRTM/Copernicus ~30 m) — để tham khảo |
+
+- Tải và dựng hình chạy nền (vẫn vẽ được); xong ghi vào bản vẽ thành **một bước Undo**, vùng tô
+  nằm dưới cùng. Tuỳ chọn xoá dữ liệu lấy lần trước trên các lớp này.
+- Dữ liệu tải về được lưu đệm trên máy (OSM 30 ngày, ô cao độ lâu dài): lấy lại cùng vùng không phải chờ.
+- Phạm vi tối đa khoảng 25 × 25 km. Nguồn: © OpenStreetMap (ODbL), Terrarium/AWS.
+- Chưa có (so với CadMini): nhà nhận dạng từ ảnh vệ tinh (Microsoft), nhận dạng nhà bằng AI.

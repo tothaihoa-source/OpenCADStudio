@@ -10,6 +10,7 @@ pub(in crate::app) mod gpmb_cmd;
 pub(in crate::app) mod trichluc_cmd;
 pub(in crate::app) mod xuat_cmd;
 pub(in crate::app) mod cadmini_dialogs;
+pub(in crate::app) mod bandoht_cmd;
 mod cadmini_cmd;
 mod attman;
 mod block_cmdline;
@@ -600,6 +601,9 @@ impl OpenCADStudio {
             return Some(t);
         }
         if let Some(t) = self.dispatch_xuat(cmd, i) {
+            return Some(t);
+        }
+        if let Some(t) = self.dispatch_bandoht(cmd, i) {
             return Some(t);
         }
         if let Some(t) = self.dispatch_text_layer(cmd, i) {
